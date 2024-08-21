@@ -1,11 +1,13 @@
 import os, time, cv2, shutil
 from flask import Flask, render_template, request, redirect
 from Mimic_Capture import get_blocks_from_image, solve, get_order
+from multiprocessing.dummy import Pool # test
 ratio = 1
 points = []
 blocks_sets = []
 filename = ''
 app = Flask(__name__)
+pool = Pool(10) # test
 
 @app.route('/')
 def index():
@@ -21,7 +23,6 @@ def fix_points():
     if request.method == 'POST':
         blocks_sets = []
         f = request.files['file']
-        print(request.form.get('screen-width'))
         screen_width = int(request.form.get('screen-width')) - 20
         extension = f.filename.split('.')[-1]
         if extension in ['jpg', 'jpeg', 'png', 'webp']:
@@ -52,7 +53,8 @@ def app_solve():
         points = get_blocks_from_image(screenshot=filename, web_mode=True, mimic_offset_x=mimic_offset_x,
                                        mimic_offset_y=mimic_offset_y, vertical_offset=vertical_offset,
                                        horizontal_offset=horizontal_offset)
-        messages = solve(points, web_mode=True)
+        #messages = solve(points, web_mode=True)
+        messages = pool.apply_async(solve, [points, True]).get(timeout=100)
         if len(messages) > 1:
             dir_name = f'{filename} Solutions'
             os.remove(filename)
@@ -65,8 +67,8 @@ def app_solve():
                     if os.path.isfile(file_name):
                         blocks_sets.append([file_name, blocks_set])
         return render_template("results.html", blocks_sets=blocks_sets, benefit=benefit,
-                               file_number=filename.split('/')[-1].replace('.png', ''))
-    return redirect('/')
+                               file_number=filename.split('/')[-1].replace('.png', '')), 202
+    return redirect('/'),
 
 @app.route('/get_order', methods=['POST'])
 def app_get_order():

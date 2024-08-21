@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Upload Screenshot</title>
+    <script type="text/javascript">
+        window.onload = () => {
+            var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+            document.getElementById("screen-width").value = width;
+        };
+    </script>
+{% endblock %}
+{% block body %}
+    <h1>Upload screenshot</h1>
+    <form action = "/fix_points" method = "post" enctype="multipart/form-data">
+        <input type="hidden" id="screen-width" name="screen-width" value="" />
+        <input type="file" style="padding-bottom:20px;" name="file" />
+        <br>
+        <input type="submit" value="Upload" />
+    </form>
+{% endblock %}

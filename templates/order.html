@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Order</title>
+{% endblock %}
+{% block body %}
+    <div style="text-align:center;">
+        <img src="{{ image_path }}" alt="" style="width:400px;">
+        <br>
+        <div style="padding:0.75em;">
+            <label>{{ message }}</label>
+            <br><br>
+            <label>The time it took to find: {{ duration }} seconds.</label>
+        </div>
+    </div>
+{% endblock %}

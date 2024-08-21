@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Fix Points</title>
+<script type="text/javascript">
+    var mimic_x_offset = 0,
+        mimic_y_offset = 0,
+        vertical_offset = 0,
+        horizontal_offset = 0,
+        point_radius = 10,
+        points = [];
+    {% for point in points %}
+    points.push([{{ point[0] }}, {{ point[1] }}, {{ point[2] }}, {{ point[3] }}]);
+    {% endfor %}
+    var mimic_point = points[points.length-1];
+    function drawImage(){
+        var canvas = document.getElementById("canvas"),
+            ctx = canvas.getContext("2d"),
+            img = new Image();
+        img.onload = function(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, {{ image_width }}, {{ image_height }});
+            for (const point of points){
+                ctx.beginPath();
+                var point_x = point[0] + mimic_x_offset + point[3]*horizontal_offset,
+                    point_y = point[1] + mimic_y_offset + point[2]*vertical_offset;
+                ctx.arc(point_x, point_y, point_radius, 0, 2 * Math.PI, false);
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+            }
+            document.getElementById("mimic_offset_x").value = mimic_x_offset;
+            document.getElementById("mimic_offset_y").value = mimic_y_offset;
+            document.getElementById("vertical_offset").value = vertical_offset;
+            document.getElementById("horizontal_offset").value = horizontal_offset;
+            document.getElementById("point_radius").value = point_radius;
+
+
+        };
+        img.src = "{{ filename }}";
+    }
+
+    function fix_points(){
+        var mimic_x_offset_input = document.getElementById("mimic_offset_x").value,
+            mimic_y_offset_input = document.getElementById("mimic_offset_y").value,
+            vertical_offset_input = document.getElementById("vertical_offset").value,
+            horizontal_offset_input = document.getElementById("horizontal_offset").value,
+            point_radius_input = document.getElementById("point_radius").value;
+        if (!isNaN(mimic_x_offset_input) && !isNaN(mimic_y_offset_input) && !isNaN(vertical_offset_input)
+            && !isNaN(horizontal_offset_input) && !isNaN(point_radius_input)){
+            mimic_x_offset = Number(mimic_x_offset_input);
+            mimic_y_offset = Number(mimic_y_offset_input);
+            vertical_offset = Number(vertical_offset_input);
+            horizontal_offset = Number(horizontal_offset_input);
+            point_radius = Number(point_radius_input);
+            drawImage();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", drawImage, false);
+</script>
+{% endblock %}
+{% block body %}
+    <pre style="margin-top: 20px;">
+        {% if success == True %}
+            Please fix points:
+            <canvas id="canvas" width="{{ image_width }}px" height="{{ image_height }}px"></canvas>
+            <form action = "/solve" method = "post">
+                <label for="mimic_offset_x">Mimic point offset X: </label>
+                <input id="mimic_offset_x" name="mimic_offset_x" />
+                <br>
+                <label for="mimic_offset_y">Mimic point offset Y: </label>
+                <input id="mimic_offset_y" name="mimic_offset_y"/>
+                <br>
+                <label for="vertical_offset">Vertical offset: </label>
+                <input id="vertical_offset" name="vertical_offset"/>
+                <br>
+                <label for="horizontal_offset">Horizontal offset: </label>
+                <input id="horizontal_offset" name="horizontal_offset"/>
+                <br>
+                <label for="point_radius">Point radius: </label>
+                <input id="point_radius" />
+                <br>
+                <input type="button" onclick="fix_points()" value="Change">
+                <br>
+                <input type="submit" value="Solve" />
+            </form>
+        {% else %}
+            File upload failed.
+            Please make sure the file is an image of type: png / jpg / jpeg / webp.
+        {% endif %}
+    </pre>
+{% endblock %}

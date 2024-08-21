@@ -1,0 +1,53 @@
+* {
+      touch-action: manipulation;
+  }
+
+html, body {
+    height: 100%;
+}
+
+html {
+    display: table;
+    margin: auto;
+}
+
+body {
+    font-family: sans-serif;
+}
+
+
+table, td, th {
+  border: 1px solid;
+}
+
+table{
+    border-collapse: collapse;
+    text-align:center;
+    width: 400px;
+    height: 30px;
+}
+
+td{
+    text-align: center;
+    padding: 5px;
+}
+
+h1, h2{
+    text-align:center;
+}
+
+.form{
+    margin-top: 20px;
+}
+#content{
+    width: 70%;
+}
+
+#canvas{
+    display: block;
+    margin: 0 auto;
+}
+
+.result-div {
+    text-align:center;
+}

@@ -1,5 +1,4 @@
 import sys, cv2, os, time, itertools, operator
-from pyexpat.errors import messages
 
 from PIL import Image
 import numpy as np
@@ -102,6 +101,11 @@ def convert_indexes(block):
 
 
 def check_move(board, from_i, from_j, to_i, to_j):
+    # start debug
+    print('in check_move')
+    print(board.matrix)
+    print(from_i, from_j, to_i, to_j)
+    # end debug
     for index in [from_i, from_j, to_i, to_j]:
         if not 0 <= index <= 6:
             return False
@@ -134,6 +138,11 @@ class Board:
             break_flag = False
             for i, row in enumerate(self.matrix):
                 for j in range(len(row)):
+                    # start debug
+                    print('before check_move')
+                    print(self.matrix)
+                    print(border[0], border[1], i, j)
+                    # end debug
                     if [i, j] not in borders and check_move(self, border[0], border[1], i, j):
                         break_flag = True
                         break

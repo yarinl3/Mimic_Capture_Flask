@@ -54,7 +54,7 @@ def app_solve():
                                        mimic_offset_y=mimic_offset_y, vertical_offset=vertical_offset,
                                        horizontal_offset=horizontal_offset)
         #messages = solve(points, web_mode=True)
-        messages = pool.apply_async(solve, [points, True]).get(timeout=100)
+        messages = pool.apply_async(solve, [points, True]).get(timeout=1000)
         if len(messages) > 1:
             dir_name = f'{filename} Solutions'
             os.remove(filename)

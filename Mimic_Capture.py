@@ -1,5 +1,4 @@
 import sys, cv2, os, time, itertools, operator
-
 from PIL import Image
 import numpy as np
 
@@ -14,16 +13,15 @@ VERTICAL_RATIO = 0.0536
 HORIZONTAL_RATIO = 0.113
 NUMBER_OF_BLOCKS_TO_REMOVE = 10
 SAMPLE_RADIUS = 10
-ROWS_NUMBER = 7
-COLS_NUMBER = 7
+ROWS_NUMBER, COLS_NUMBER = 7, 7
 screenshot_path = ''
 
 
 def main():
     global screenshot_path, width_fix, height_fix, vertical_fix, horizontal_fix
-    mode = MODES['PLAY']
-    screenshot_path = '' # here you put the screenshot path
-    screenshot_path = os.getcwd() + f'/{sys.argv[1]}' if len(sys.argv) > 1 else screenshot_path
+    mode = MODES['GET_ORDER']
+    screenshot_path = 'test.png' # here you put the screenshot path
+    screenshot_path = f'{sys.argv[1]}' if len(sys.argv) > 1 else screenshot_path
     if os.path.isfile(screenshot_path) is False:
         print(f'The file {screenshot_path} does not exist!')
         return
@@ -56,75 +54,15 @@ def main():
         os.system("say beep")
 
 
-def get_order(points, web_blocks='', web_mode=False):
-    if web_mode:
-        blocks_text = web_blocks
-    else:
-        blocks_text = input('Enter Blocks: ')
-    blocks = blocks_text.split(' ')
-    blocks_to_remove = []
-    if len(blocks) != NUMBER_OF_BLOCKS_TO_REMOVE:
-        print('Wrong number of blocks')
-        return
-    for block in blocks:
-        i, j = convert_indexes(block)
-        if i is None:
-            print(f'Wrong block index. {block}')
-            return
-        blocks_to_remove.append([i, j])
-    start = time.time()
-    order = find_order(points, blocks_to_remove)
-    if order is None:
-        message = 'No order found.'
-    else:
-        message = f"The order is: {' -> '.join([REV_COL[i[1]] + str(i[0] + 1) for i in order])}"
-    duration = int(time.time() - start)
-
-    if web_mode:
-        return message, duration
-    else:
-        print(message)
-        print(f'The time it took to find: {duration} seconds.')
-
-def debug_program(points, print_points=False):
-    if print_points:
-        for point in points:
-            print(point)
-    save_solution_as_image('debug', points, [], debug=True)
-
-
-def convert_indexes(block):
-    block = block.strip()
-    if len(block) != 2 or block[0].upper() not in COLS or block[1].isdigit() is False or not (0 < int(block[1]) < 8):
-        return None, None
-    return int(block[1]) - 1, COLS[block[0].upper()]
-
-
-def check_move(board, from_i, from_j, to_i, to_j):
-    for index in [from_i, from_j, to_i, to_j]:
-        if not 0 <= index <= 6:
-            return False
-    if False in [board.matrix[to_i][to_j], board.matrix[from_i][from_j]]:
-        return False
-    if from_j - 1 <= to_j <= from_j + 1:
-        if from_j % 2 == 0:
-            if from_i - 1 <= to_i < from_i + 1 or (to_i == from_i + 1 and to_j == from_j):
-                return True
-        else:
-            if from_i - 1 < to_i <= from_i + 1 or (to_i == from_i - 1 and to_j == from_j):
-                return True
-    return False
-
-
 class Board:
     def __init__(self):
         self.matrix = [[False for _ in range(COLS_NUMBER)] for _ in range(ROWS_NUMBER)]
         self.frog = [3, 3]
 
-    def update_board(self, points):
+    def update_board(self, points, blocks_to_remove=()):
         for point in points:
             _, _, i, j, _, _, is_block = point
-            if is_block is True:
+            if is_block is True and [i, j] not in blocks_to_remove:
                 self.matrix[i][j] = True
 
     def remove_pointless_blocks(self):
@@ -145,7 +83,7 @@ class Board:
         reachable_blocks = self.get_reachable_blocks()
         for i, row in enumerate(self.matrix):
             for j, value in enumerate(row):
-                if value is True and [i, j] not in reachable_blocks and [i, j] != self.frog:
+                if value is True and [i, j] != self.frog and [i, j] not in reachable_blocks:
                     self.matrix[i][j] = False
 
     def get_reachable_blocks(self):
@@ -267,9 +205,11 @@ class Board:
                 print()
 
 
-def clear_and_show_board(board):
-    os.system('cls' if os.name == 'nt' else 'clear')
-    board.show_board()
+def debug_program(points, print_points=False):
+    if print_points:
+        for point in points:
+            print(point)
+    save_solution_as_image('debug', points, [], debug=True)
 
 
 def play_game(points):
@@ -304,100 +244,11 @@ def play_game(points):
             exit()
 
 
-def find_order(points, blocks):
-    board = Board()
-    board.update_board(points)
-    res = remove_necessary_blocks(board, blocks)
-    if res is False: # no order exist
-        return
-    removed_blocks = res
-    orders = itertools.permutations(blocks)
-    # start test code
-    temp_frog = board.frog.copy()
-    next_i, next_j = get_next_move(board, board.frog[0], board.frog[1])
-    board.frog = [next_i, next_j]
-    if None not in [next_i, next_j] and [next_i, next_j] not in blocks:  # split in future code
-        next_i, next_j = get_next_move(board, next_i, next_j)
-        if [next_i, next_j] in blocks and board.matrix[next_i][next_j] == True:
-            board.matrix[next_i][next_j] = False
-            next2_i, next2_j = get_next_move(board, next_i, next_j)
-            board.matrix[next_i][next_j] = True
-            if [next2_i, next2_j] in blocks:
-                gen1 = create_generator([next_i, next_j], [next2_i, next2_j], blocks, 0)
-                gen2 = create_generator([next_i, next_j], [next2_i, next2_j], blocks, 1)
-                orders = itertools.chain(gen1, gen2)
-    board.frog = temp_frog.copy()
-    # end test code
-    while True:
-        try:
-            order = orders.__next__()
-        except StopIteration:
-            break
-        copy_order = list(order)
-        if board.frog in copy_order: # Frog block removal is prohibited
-            continue
-        copy_board = board.copy()
-        while copy_order:
-            i, j = copy_order.pop(0)
-            copy_board.matrix[i][j] = False
-            is_win = copy_board.move()
-            if is_win is False or copy_board.frog in copy_order:  # Frog block removal is prohibited
-                break
-            if is_win is True:
-                return removed_blocks + list(order)
-
-def get_next_move(board, i, j):
-    border_i, border_j = board.calculate_best_move(i, j)
-    if None not in [border_i, border_j]:
-        next_i, next_j = board.calculate_best_move(border_i, border_j, to_frog=True)
-        return next_i, next_j
-    return None, None
-
-def create_generator(block1, block2, blocks, block_number):
-    copy_blocks = blocks.copy()
-    copy_blocks.remove(block1)
-    copy_blocks.remove(block2)
-    gen = itertools.permutations(copy_blocks)
-    while True:
-        try:
-            yield [[block1, block2], [block2, block1]][block_number] + list(next(gen))
-        except StopIteration:
-            return
-
-
-
-def remove_necessary_blocks(board, blocks_to_remove):
-    removed_blocks = []
-    while True:
-        next_i, next_j = get_next_move(board, board.frog[0], board.frog[1])
-        if None not in [next_i, next_j] and [next_i, next_j] in blocks_to_remove:
-            blocks_to_remove.remove([next_i, next_j])
-            removed_blocks.append([next_i, next_j])
-            board.matrix[next_i][next_j] = False
-            is_win = board.move()
-            if is_win is False:
-                return False
-            if is_win is True:
-                return removed_blocks
-        else:
-            return removed_blocks
-
-
-
-def get_borders(board):
-    borders = []
-    for i, row in enumerate(board.matrix):
-        for j, value in enumerate(row):
-            if value is True and (i in [0, 6] or j in [0, 6]):
-                borders.append([i, j])
-    return borders
-
-
 def solve(points, web_mode=False):
     maximum_benefit = 0
     web_messages = []
     benefit_list = []
-    blocks_to_remove = []
+    set_blocks_to_remove = []
     available_blocks = []
     board = Board()
     board.update_board(points)
@@ -409,23 +260,20 @@ def solve(points, web_mode=False):
             if board.matrix[i][j] is True and [i, j] != board.frog and [i, j] not in borders:
                 available_blocks.append([i, j])
 
-    blocks_to_remove.append([])  # add the option of remove only borders
+    set_blocks_to_remove.append([])  # add the option of remove only borders
     # combination of one block from available blocks
     for i in range(1, 11):  # add all combinations of true blocks that not in the borders and not the frog block
-        blocks_to_remove += list(itertools.combinations(available_blocks, i))
-    for block_to_remove in blocks_to_remove:
+        set_blocks_to_remove += list(itertools.combinations(available_blocks, i))
+    for blocks_to_remove in set_blocks_to_remove:
         board = Board()
-        board.update_board(points)
-        for block in block_to_remove:
-            i, j = block
-            board.matrix[i][j] = False
+        board.update_board(points, blocks_to_remove)
 
         # Checks if one of the blocks to be removed cannot be reached when the other blocks are removed.
         # This causes a double solution.
         continue_flag = False
-        for block in block_to_remove:
+        for block in blocks_to_remove:
             i, j = block
-            board.matrix[i][j] = True
+            board.matrix[i][j] = True # no need to append to board.borders because [i, j] never in border.
             board.remove_unreachable_blocks()
             if board.matrix[i][j] is False:
                 continue_flag = True
@@ -437,10 +285,10 @@ def solve(points, web_mode=False):
         board.remove_pointless_blocks()
         board.remove_unreachable_blocks()
         borders = get_borders(board)
-        amount_of_blocks = len(borders) + len(block_to_remove)
+        amount_of_blocks = len(borders) + len(blocks_to_remove)
 
         if amount_of_blocks <= NUMBER_OF_BLOCKS_TO_REMOVE:
-            true_blocks = len(block_to_remove)
+            true_blocks = len(blocks_to_remove)
             for i in range(ROWS_NUMBER):
                 for j in range(COLS_NUMBER):
                     if board.matrix[i][j] is True:
@@ -449,7 +297,7 @@ def solve(points, web_mode=False):
 
             if benefit >= maximum_benefit:
                 maximum_benefit = benefit
-                blocks_to_remove_with_maximum_benefit = list(block_to_remove) + borders
+                blocks_to_remove_with_maximum_benefit = list(blocks_to_remove) + borders
                 benefit_list.append([benefit, blocks_to_remove_with_maximum_benefit])
 
     counter = 1
@@ -469,53 +317,64 @@ def solve(points, web_mode=False):
     return web_messages
 
 
-def save_solution_as_image(solution_number, points, blocks_to_remove, screenshot=None, debug=False):
-    screenshot = screenshot if screenshot is not None else screenshot_path
-    solutions_dir_path = f'{os.path.dirname(screenshot)}/{screenshot.split("/")[-1]} Solutions'
-    os.makedirs(solutions_dir_path, exist_ok=True)
-    img_rgb = cv2.imread(screenshot)
-    screenshot_w = img_rgb.shape[1]
-    for point in points:
-        pixel_i, pixel_j, matrix_i, matrix_j, _, _, is_block = point
-        if [matrix_i, matrix_j] in blocks_to_remove or debug:
-            cv2.circle(img_rgb, (pixel_j, pixel_i), int(screenshot_w * CIRCLE_RADIUS_RATIO), (255, 0, 0), -1)
-    cv2.imwrite(f'{solutions_dir_path}/solution-{solution_number}.png', img_rgb)
+def get_order(points, web_blocks='', web_mode=False):
+    if web_mode:
+        blocks = web_blocks.split(' ')
+    else:
+        blocks = input('Enter Blocks: ').strip().split(' ')
+    blocks_to_remove = validate_blocks_input(blocks)
+    if blocks_to_remove is None:
+        return
+    start = time.time()
+    order = find_order(points, blocks_to_remove)
+    duration = int(time.time() - start)
+
+    if order is None:
+        message = 'No order found.'
+    else:
+        message = f"The order is: {' -> '.join([REV_COL[i[1]] + str(i[0] + 1) for i in order])}"
+
+    if web_mode:
+        return message, duration
+    else:
+        print(message)
+        print(f'The time it took to find: {duration} seconds.')
 
 
-def convert_pic(screenshot):
-    im = Image.open(screenshot).convert('RGB')
-    for extension in ['webp', 'jpg', 'jpeg']:
-        if screenshot.endswith(f'.{extension}'):
-            new_path = screenshot.replace(f'.{extension}', '.png')
-            im.save(new_path, "png")
-            os.remove(screenshot)
-            return new_path
-    return screenshot
+def get_borders(board):
+    borders = []
+    for i, row in enumerate(board.matrix):
+        for j, value in enumerate(row):
+            if value is True and (i in [0, 6] or j in [0, 6]):
+                borders.append([i, j])
+    return borders
+
+
+def check_move(board, from_i, from_j, to_i, to_j):
+    for index in [from_i, from_j, to_i, to_j]:
+        if not 0 <= index <= 6:
+            return False
+    if False in [board.matrix[to_i][to_j], board.matrix[from_i][from_j]]:
+        return False
+    if from_j - 1 <= to_j <= from_j + 1:
+        if from_j % 2 == 0:
+            if from_i - 1 <= to_i < from_i + 1 or (to_i == from_i + 1 and to_j == from_j):
+                return True
+        else:
+            if from_i - 1 < to_i <= from_i + 1 or (to_i == from_i - 1 and to_j == from_j):
+                return True
+    return False
 
 
 def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=width_fix, mimic_offset_y=height_fix,
                           vertical_offset=vertical_fix, horizontal_offset=horizontal_fix):
     global screenshot_path
-    mimic_path = f"{'/'.join(__file__.split('/')[:-1])}/mimic_treasure.png"
     screenshot_path = convert_pic(screenshot if web_mode else screenshot_path)
     img_rgb = cv2.imread(screenshot_path)
     screenshot_h, screenshot_w = img_rgb.shape[:-1]
+    mimic_center_i = int(screenshot_h * RELATIVE_ON_SCREEN_POSITION) + mimic_offset_y
+    mimic_center_j = int(screenshot_w/2) + mimic_offset_x
 
-    # Finds the mimic treasure in the picture
-    template = cv2.imread(mimic_path)
-    template_w, template_h = template.shape[:-1]
-    res = cv2.matchTemplate(img_rgb, template, cv2.TM_CCOEFF_NORMED)
-    threshold = .5
-    loc = np.where(res >= threshold)
-    pts = list(zip(*loc[::-1]))
-    if len(pts) > 0:
-        pt = pts[0]
-        mimic_center = (int(pt[1] + template_h/2 + screenshot_h * RELATIVE_ON_MIMIC_POSITION) + mimic_offset_y,
-                        int(screenshot_w/2)+mimic_offset_x)
-    else:
-        print("Error: Can't find Mimic Treasure.")
-        mimic_center = int(screenshot_h * RELATIVE_ON_SCREEN_POSITION) + mimic_offset_y, int(screenshot_w/2) + mimic_offset_x
-    mimic_center_i, mimic_center_j = mimic_center
     # Places points in the center of the blocks relative to the mimic treasure
     vertical_offset = screenshot_w * VERTICAL_RATIO + vertical_offset
     horizontal_offset = screenshot_w * HORIZONTAL_RATIO + horizontal_offset
@@ -549,6 +408,135 @@ def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=width_
         points.append((point_i, point_j, point_matrix_i, point_matrix_j, i, j, bool(dominant[2] > 140)))
     points.append((mimic_center_i, mimic_center_j, 3, 3, 0, 0, True))  # adds mimic treasure block
     return points
+
+
+def convert_pic(screenshot):
+    im = Image.open(screenshot).convert('RGB')
+    for extension in ['webp', 'jpg', 'jpeg']:
+        if screenshot.endswith(f'.{extension}'):
+            new_path = screenshot.replace(f'.{extension}', '.png')
+            im.save(new_path, "png")
+            os.remove(screenshot)
+            return new_path
+    return screenshot
+
+
+def save_solution_as_image(solution_number, points, blocks_to_remove, screenshot=None, debug=False):
+    screenshot = screenshot if screenshot is not None else screenshot_path
+    solutions_dir_path = f'{os.path.dirname(screenshot)}/{screenshot.split("/")[-1]} Solutions'
+    os.makedirs(solutions_dir_path, exist_ok=True)
+    img_rgb = cv2.imread(screenshot)
+    screenshot_w = img_rgb.shape[1]
+    for point in points:
+        pixel_i, pixel_j, matrix_i, matrix_j, _, _, is_block = point
+        if [matrix_i, matrix_j] in blocks_to_remove or debug:
+            cv2.circle(img_rgb, (pixel_j, pixel_i), int(screenshot_w * CIRCLE_RADIUS_RATIO), (255, 0, 0), -1)
+    cv2.imwrite(f'{solutions_dir_path}/solution-{solution_number}.png', img_rgb)
+
+
+def clear_and_show_board(board):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    board.show_board()
+
+
+def convert_indexes(block):
+    block = block.strip()
+    if len(block) != 2 or block[0].upper() not in COLS or block[1].isdigit() is False or not (0 < int(block[1]) < 8):
+        return None, None
+    return int(block[1]) - 1, COLS[block[0].upper()]
+
+
+def validate_blocks_input(blocks):
+    blocks_to_remove = []
+    if len(blocks) != NUMBER_OF_BLOCKS_TO_REMOVE:
+        print('Wrong number of blocks')
+        return
+    for block in blocks:
+        i, j = convert_indexes(block)
+        if i is None:
+            print(f'Wrong block index. {block}')
+            return
+        blocks_to_remove.append([i, j])
+    return blocks_to_remove
+
+
+def find_order(points, blocks):
+    board = Board()
+    board.update_board(points)
+    res = remove_necessary_blocks(board, blocks)
+    if res is False: # no order exist
+        return
+    removed_blocks = res
+    orders = itertools.permutations(blocks)
+    temp_frog = board.frog.copy()
+    next_i, next_j = get_next_move(board, board.frog[0], board.frog[1])
+    board.frog = [next_i, next_j]
+    if None not in [next_i, next_j] and [next_i, next_j] not in blocks:  # split in future code
+        next_i, next_j = get_next_move(board, next_i, next_j)
+        if [next_i, next_j] in blocks and board.matrix[next_i][next_j] == True:
+            board.matrix[next_i][next_j] = False
+            next2_i, next2_j = get_next_move(board, next_i, next_j)
+            board.matrix[next_i][next_j] = True
+            if [next2_i, next2_j] in blocks:
+                gen1 = create_generator([next_i, next_j], [next2_i, next2_j], blocks, 0)
+                gen2 = create_generator([next_i, next_j], [next2_i, next2_j], blocks, 1)
+                orders = itertools.chain(gen1, gen2)
+    board.frog = temp_frog.copy()
+
+    while True:
+        try:
+            order = orders.__next__()
+        except StopIteration:
+            break
+        copy_order = list(order)
+        if board.frog in copy_order: # Frog block removal is prohibited
+            continue
+        copy_board = board.copy()
+        while copy_order:
+            i, j = copy_order.pop(0)
+            copy_board.matrix[i][j] = False
+            is_win = copy_board.move()
+            if is_win is False or copy_board.frog in copy_order:  # Frog block removal is prohibited
+                break
+            if is_win is True:
+                return removed_blocks + list(order)
+
+
+def get_next_move(board, i, j):
+    border_i, border_j = board.calculate_best_move(i, j)
+    if None not in [border_i, border_j]:
+        next_i, next_j = board.calculate_best_move(border_i, border_j, to_frog=True)
+        return next_i, next_j
+    return None, None
+
+
+def create_generator(block1, block2, blocks, block_number):
+    copy_blocks = blocks.copy()
+    copy_blocks.remove(block1)
+    copy_blocks.remove(block2)
+    gen = itertools.permutations(copy_blocks)
+    while True:
+        try:
+            yield [[block1, block2], [block2, block1]][block_number] + list(next(gen))
+        except StopIteration:
+            return
+
+
+def remove_necessary_blocks(board, blocks_to_remove):
+    removed_blocks = []
+    while True:
+        next_i, next_j = get_next_move(board, board.frog[0], board.frog[1])
+        if None not in [next_i, next_j] and [next_i, next_j] in blocks_to_remove:
+            blocks_to_remove.remove([next_i, next_j])
+            removed_blocks.append([next_i, next_j])
+            board.matrix[next_i][next_j] = False
+            is_win = board.move()
+            if is_win is False:
+                return False
+            if is_win is True:
+                return removed_blocks
+        else:
+            return removed_blocks
 
 
 if __name__ == '__main__':

@@ -1,6 +1,8 @@
 import sys, cv2, os, time, itertools, operator
+from concurrent.futures import ProcessPoolExecutor
 from PIL import Image
 import numpy as np
+
 
 COLS = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6}
 REV_COL = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G'}
@@ -14,12 +16,14 @@ HORIZONTAL_RATIO = 0.113
 NUMBER_OF_BLOCKS_TO_REMOVE = 10
 SAMPLE_RADIUS = 10
 ROWS_NUMBER, COLS_NUMBER = 7, 7
+CPU_CORES = os.cpu_count() # use all cores or less
 screenshot_path = ''
+is_win_flag = False
 
 
 def main():
     global screenshot_path, width_fix, height_fix, vertical_fix, horizontal_fix
-    mode = MODES['GET_ORDER']
+    mode = MODES['PLAY']
     screenshot_path = 'test.png' # here you put the screenshot path
     screenshot_path = f'{sys.argv[1]}' if len(sys.argv) > 1 else screenshot_path
     if os.path.isfile(screenshot_path) is False:
@@ -32,7 +36,7 @@ def main():
         return
 
     if mode == MODES['DEBUG']:
-        height_fix = 0
+        height_fix = -75
         width_fix = 0
         horizontal_fix = 0
         vertical_fix = 0
@@ -130,8 +134,7 @@ class Board:
         borders = get_borders(self)
         if not borders:
             return None, None
-        priority_border_list = sorted(sorted(borders, key=operator.itemgetter(1)), key=operator.itemgetter(0),
-                                      reverse=True)
+        priority_border_list = sorted(sorted(borders, key=operator.itemgetter(1)), key=operator.itemgetter(0), reverse=True)
         [i.append(999) for i in priority_border_list]
         # calculate the shortest path from start to destination
         i, j = self.frog
@@ -307,6 +310,8 @@ def solve(points, web_mode=False):
         print(f'The maximum benefit is {maximum_benefit}.')
         for item in benefit_list:
             if item[0] == maximum_benefit:
+                # re-order blocks from bottom to top to optimize get_order finder
+                item[1] = sorted(sorted(item[1], key=operator.itemgetter(1)), key=operator.itemgetter(0), reverse=True)
                 blocks_set = ' '.join([REV_COL[i[1]] + str(i[0] + 1) for i in item[1]])
                 if web_mode:
                     web_messages.append(blocks_set)
@@ -366,9 +371,13 @@ def check_move(board, from_i, from_j, to_i, to_j):
     return False
 
 
-def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=width_fix, mimic_offset_y=height_fix,
-                          vertical_offset=vertical_fix, horizontal_offset=horizontal_fix):
+def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=0, mimic_offset_y=0, vertical_offset=0, horizontal_offset=0):
     global screenshot_path
+    if web_mode is False:
+        mimic_offset_x = width_fix
+        mimic_offset_y = height_fix
+        vertical_offset = vertical_fix
+        horizontal_offset = horizontal_fix
     screenshot_path = convert_pic(screenshot if web_mode else screenshot_path)
     img_rgb = cv2.imread(screenshot_path)
     screenshot_h, screenshot_w = img_rgb.shape[:-1]
@@ -460,14 +469,33 @@ def validate_blocks_input(blocks):
     return blocks_to_remove
 
 
+def run_game_with_order(params):
+    global is_win_flag
+    if is_win_flag:
+        return
+    order, board, removed_blocks = params
+    copy_order = list(order)
+    if board.frog in copy_order:  # Frog block removal is prohibited
+        return
+
+    while copy_order:
+        i, j = copy_order.pop(0)
+        board.matrix[i][j] = False
+        is_win = board.move()
+        if is_win is False or board.frog in copy_order:  # Frog block removal is prohibited
+            return
+        if is_win is True:
+            is_win_flag = True
+            return removed_blocks + list(order)
+
+
 def find_order(points, blocks):
     board = Board()
     board.update_board(points)
-    res = remove_necessary_blocks(board, blocks)
-    if res is False: # no order exist
+    removed_blocks = remove_necessary_blocks(board, blocks)
+    if removed_blocks is False: # no order exist
         return
-    removed_blocks = res
-    orders = itertools.permutations(blocks)
+    orders = create_generator(blocks, board, removed_blocks, initial=True)
     temp_frog = board.frog.copy()
     next_i, next_j = get_next_move(board, board.frog[0], board.frog[1])
     board.frog = [next_i, next_j]
@@ -478,28 +506,26 @@ def find_order(points, blocks):
             next2_i, next2_j = get_next_move(board, next_i, next_j)
             board.matrix[next_i][next_j] = True
             if [next2_i, next2_j] in blocks:
-                gen1 = create_generator([next_i, next_j], [next2_i, next2_j], blocks, 0)
-                gen2 = create_generator([next_i, next_j], [next2_i, next2_j], blocks, 1)
+                gen1 = create_generator(blocks, board, removed_blocks, block1=[next_i, next_j], block2=[next2_i, next2_j],  block_number=0)
+                gen2 = create_generator(blocks, board, removed_blocks, block1=[next_i, next_j], block2=[next2_i, next2_j], block_number=1)
                 orders = itertools.chain(gen1, gen2)
     board.frog = temp_frog.copy()
 
-    while True:
+    while True: 
+        orders_list = []
         try:
-            order = orders.__next__()
+            for _ in range(50000):
+                orders_list.append(orders.__next__())
         except StopIteration:
-            break
-        copy_order = list(order)
-        if board.frog in copy_order: # Frog block removal is prohibited
-            continue
-        copy_board = board.copy()
-        while copy_order:
-            i, j = copy_order.pop(0)
-            copy_board.matrix[i][j] = False
-            is_win = copy_board.move()
-            if is_win is False or copy_board.frog in copy_order:  # Frog block removal is prohibited
+            if len(orders_list) == 0:
                 break
-            if is_win is True:
-                return removed_blocks + list(order)
+
+        with ProcessPoolExecutor(CPU_CORES) as executor:
+            results = executor.map(run_game_with_order, orders_list)
+            for result in results:
+                if result:
+                    return result
+
 
 
 def get_next_move(board, i, j):
@@ -510,14 +536,21 @@ def get_next_move(board, i, j):
     return None, None
 
 
-def create_generator(block1, block2, blocks, block_number):
+def create_generator(blocks, board, removed_blocks, block1=None, block2=None, block_number=None, initial=False):
     copy_blocks = blocks.copy()
-    copy_blocks.remove(block1)
-    copy_blocks.remove(block2)
+    copy_board = board.copy()
+
+    if initial is False:
+        copy_blocks.remove(block1)
+        copy_blocks.remove(block2)
+
     gen = itertools.permutations(copy_blocks)
     while True:
         try:
-            yield [[block1, block2], [block2, block1]][block_number] + list(next(gen))
+            if initial:
+                yield list(next(gen)), copy_board, removed_blocks
+            else:
+                yield [[block1, block2], [block2, block1]][block_number] + list(next(gen)), copy_board, removed_blocks
         except StopIteration:
             return
 

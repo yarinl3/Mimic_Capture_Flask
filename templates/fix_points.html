@@ -2,12 +2,14 @@
 
 {% block head %}
 <title>Fix Points</title>
+<script src="/static/js/NoSleep.js"></script>
 <script type="text/javascript">
+    var noSleep = new NoSleep();
     var mimic_x_offset = 0,
         mimic_y_offset = 0,
         vertical_offset = 0,
         horizontal_offset = 0,
-        point_radius = 10,
+        point_radius = 7,
         points = [];
     {% for point in points %}
     points.push([{{ point[0] }}, {{ point[1] }}, {{ point[2] }}, {{ point[3] }}]);
@@ -57,6 +59,96 @@
     }
 
     document.addEventListener("DOMContentLoaded", drawImage, false);
+    document.addEventListener("DOMContentLoaded", function(){
+        let up =  document.getElementById('up'),
+        down =  document.getElementById('down'),
+        right =  document.getElementById('right'),
+        left =  document.getElementById('left');
+        let up_mouseButtonDown = false,
+            down_mouseButtonDown = false,
+            right_mouseButtonDown = false,
+            left_mouseButtonDown = false;
+
+        up.addEventListener('mousedown', () => up_mouseButtonDown = true);
+        up.addEventListener('mouseup', () => up_mouseButtonDown = false);
+        up.addEventListener('touchstart', () => up_mouseButtonDown = true);
+        up.addEventListener('touchend', () => up_mouseButtonDown = false);
+        down.addEventListener('mousedown', () => down_mouseButtonDown = true);
+        down.addEventListener('mouseup', () => down_mouseButtonDown = false);
+        down.addEventListener('touchstart', () => down_mouseButtonDown = true);
+        down.addEventListener('touchend', () => down_mouseButtonDown = false);
+        right.addEventListener('mousedown', () => right_mouseButtonDown = true);
+        right.addEventListener('mouseup', () => right_mouseButtonDown = false);
+        right.addEventListener('touchstart', () => right_mouseButtonDown = true);
+        right.addEventListener('touchend', () => right_mouseButtonDown = false);
+        left.addEventListener('mousedown', () => left_mouseButtonDown = true);
+        left.addEventListener('mouseup', () => left_mouseButtonDown = false);
+        left.addEventListener('touchstart', () => left_mouseButtonDown = true);
+        left.addEventListener('touchend', () => left_mouseButtonDown = false);
+
+
+        function up_animate(){
+            if (up_mouseButtonDown) {
+                let y = Number(document.getElementById("mimic_offset_y").value);
+                if (!isNaN(y)) {
+                    setTimeout(function () {
+                        document.getElementById("mimic_offset_y").value = y - 1;
+                        fix_points();
+                    }, 50)
+                }
+            }
+            requestAnimationFrame(up_animate);
+        }
+
+        function down_animate(){
+            if (down_mouseButtonDown) {
+                let y = Number(document.getElementById("mimic_offset_y").value);
+                if (!isNaN(y)){
+                    setTimeout(function () {
+                        document.getElementById("mimic_offset_y").value = y + 1;
+                        fix_points();
+                    }, 50)
+                }
+            }
+            requestAnimationFrame(down_animate);
+        }
+
+        function right_animate(){
+            if (right_mouseButtonDown) {
+                let x = Number(document.getElementById("mimic_offset_x").value);
+                if (!isNaN(x)){
+                    setTimeout(function () {
+                        document.getElementById("mimic_offset_x").value = x + 1;
+                        fix_points();
+                    }, 50)
+                }
+            }
+            requestAnimationFrame(right_animate);
+        }
+
+        function left_animate(){
+            if (left_mouseButtonDown) {
+                    let x = Number(document.getElementById("mimic_offset_x").value);
+                    if (!isNaN(x)){
+                        setTimeout(function () {
+                            document.getElementById("mimic_offset_x").value = x - 1;
+                            fix_points();
+                        }, 50)
+                    }
+            }
+            requestAnimationFrame(left_animate);
+        }
+        up_animate();
+        down_animate();
+        right_animate();
+        left_animate();
+
+        let solve = document.getElementById("solve");
+        solve.addEventListener('click', function enableNoSleep() {
+            document.removeEventListener('click', enableNoSleep, false);
+            noSleep.enable();
+        }, false);
+    }, false);
 </script>
 {% endblock %}
 {% block body %}
@@ -64,7 +156,25 @@
         {% if success == True %}
             Please fix points:
             <canvas id="canvas" width="{{ image_width }}px" height="{{ image_height }}px"></canvas>
-            <form action = "/solve" method = "post">
+            <form action = "/solve" method = "post"><table>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td><input type="button" id="up" value="↑" /></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><input type="button" id="left" value="←" /></td>
+                            <td></td>
+                            <td><input type="button" id="right" value="→" /></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><input type="button" id="down" value="↓" /></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
                 <label for="mimic_offset_x">Mimic point offset X: </label>
                 <input id="mimic_offset_x" name="mimic_offset_x" />
                 <br>
@@ -82,7 +192,7 @@
                 <br>
                 <input type="button" onclick="fix_points()" value="Change">
                 <br>
-                <input type="submit" value="Solve" />
+                <input type="submit" id="solve" value="Solve" />
             </form>
         {% else %}
             File upload failed.

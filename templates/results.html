@@ -2,7 +2,9 @@
 
 {% block head %}
 <title>Results</title>
+    <script src="/static/js/NoSleep.js"></script>
     <script type="text/javascript">
+    var noSleep = new NoSleep();
     window.onbeforeunload = () => fetch('/delete/{{ file_number }}');
     window.onload = () => {
         var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
@@ -12,6 +14,11 @@
         else{
             document.getElementById("result-div").style.width = (width-20).toString() + "px";
         }
+        let get_order = document.getElementById("get_order");
+        get_order.addEventListener('click', function enableNoSleep() {
+            document.removeEventListener('click', enableNoSleep, false);
+            noSleep.enable();
+        }, false);
     };
     </script>
 {% endblock %}
@@ -32,7 +39,7 @@
                         <label>Blocks to remove: {{ blocks_set }}</label>
                         <br>
                         <input type="hidden" name="blocks-set-number" value="{{ loop.index0 }}" />
-                        <input style="margin-top:20px" type="submit" value="Get Order" />
+                        <input style="margin-top:20px" type="submit" id="get_order" value="Get Order" />
                     </form>
                 </div>
             </div>

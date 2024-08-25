@@ -1,6 +1,7 @@
 import os, time, cv2, shutil
 from flask import Flask, render_template, request, redirect
 from Mimic_Capture import get_blocks_from_image, solve, get_order
+from pathlib import Path
 ratio = 1
 points = []
 blocks_sets = []
@@ -9,6 +10,14 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    try:
+        file_uploading_path = "static/file uploading"
+        Path(file_uploading_path).mkdir(parents=True, exist_ok=True)
+        shutil.rmtree(file_uploading_path)
+        os.mkdir(file_uploading_path)
+    except:
+        pass
+    open('static/file uploading/empty_file.txt', 'w').close()
     return render_template("index.html")
 
 @app.route('/fix_points', methods=['POST'])
@@ -28,7 +37,7 @@ def fix_points():
             f.save(filename)
             im = cv2.imread(filename)
             image_size = im.shape[:-1]
-            ratio = min(500, screen_width) / image_size[1]
+            ratio = min(400, screen_width) / image_size[1]
             points = get_blocks_from_image(screenshot=filename, web_mode=True)
             for point in points:
                 fixed_points.append([int(point[1] * ratio), int(point[0] * ratio), point[4], point[5]])

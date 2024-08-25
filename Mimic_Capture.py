@@ -340,7 +340,7 @@ def get_order(points, web_blocks='', web_mode=False):
         message = f"The order is: {' -> '.join([REV_COL[i[1]] + str(i[0] + 1) for i in order])}"
 
     if web_mode:
-        return message, duration
+        return message, duration, order
     else:
         print(message)
         print(f'The time it took to find: {duration} seconds.')
@@ -400,9 +400,9 @@ def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=0, mim
     # finds non-blocks by color
     points = []
     for offset in offsets:
-        i, j = offset
+        offset_i, offset_j = offset
         square = SAMPLE_RADIUS  # the size from the center of the sample
-        point_i, point_j = (int(mimic_center_i + i*vertical_offset), int(mimic_center_j + j*horizontal_offset))
+        point_i, point_j = (int(mimic_center_i + offset_i*vertical_offset), int(mimic_center_j + offset_j*horizontal_offset))
         cropped_image = img_rgb[point_i-square:point_i+square, point_j-square:point_j+square]  # take block sample
         # calculates dominant color of sample
         pixels = np.float32(cropped_image.reshape(-1, 3))
@@ -412,9 +412,9 @@ def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=0, mim
         _, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
         _, counts = np.unique(labels, return_counts=True)
         dominant = palette[np.argmax(counts)]
-        point_matrix_i, point_matrix_j = (int((i+ROWS_NUMBER)/2), j+3)
+        point_matrix_i, point_matrix_j = (int((offset_i+ROWS_NUMBER)/2), offset_j+3)
         # point by pixels, point by matrix index, is there a block at the point
-        points.append((point_i, point_j, point_matrix_i, point_matrix_j, i, j, bool(dominant[2] > 140)))
+        points.append((point_i, point_j, point_matrix_i, point_matrix_j, offset_i, offset_j, bool(dominant[2] > 140)))
     points.append((mimic_center_i, mimic_center_j, 3, 3, 0, 0, True))  # adds mimic treasure block
     return points
 
@@ -570,6 +570,33 @@ def remove_necessary_blocks(board, blocks_to_remove):
                 return removed_blocks
         else:
             return removed_blocks
+
+def save_order_as_image(order, points, filename, ratio):
+    img_rgb = cv2.imread(filename)
+    if order is None:
+        order = []
+    for block_number, block in enumerate(order):
+        pixel_i, pixel_j = 0, 0
+        for point in points:
+
+            if block == list(point[2:4]):
+                pixel_i, pixel_j = point[:2]
+                break
+
+        points_horizontal_distance = int((points[1][1] - points[0][1])/8)
+        points_horizontal_distance_10 = points_horizontal_distance * 2
+        points_vertical_distance = int((points[7][0] - points[6][0]) / 2)
+        font_scale = points_horizontal_distance / 12
+        thickness = int(font_scale * 2) + 1
+        if block_number == 9:
+            points_horizontal_distance = points_horizontal_distance_10
+
+        cv2.putText(img_rgb, str(block_number + 1), (int(pixel_j-points_horizontal_distance),
+                                                     int(pixel_i+points_vertical_distance)), cv2.FONT_HERSHEY_SIMPLEX,
+                    font_scale,(255, 0, 0), thickness)
+    image_name = f'{filename} order.png'
+    cv2.imwrite(image_name, img_rgb)
+    return image_name
 
 
 if __name__ == '__main__':

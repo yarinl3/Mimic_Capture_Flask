@@ -5,7 +5,6 @@
     <script src="/static/js/NoSleep.js"></script>
     <script type="text/javascript">
     var noSleep = new NoSleep();
-    window.onbeforeunload = () => fetch('/delete/{{ file_number }}');
     window.onload = () => {
         var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
         if (width > 500){

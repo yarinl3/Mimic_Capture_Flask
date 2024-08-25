@@ -1,6 +1,6 @@
 import os, time, cv2, shutil
 from flask import Flask, render_template, request, redirect
-from Mimic_Capture import get_blocks_from_image, solve, get_order
+from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as_image
 from pathlib import Path
 ratio = 1
 points = []
@@ -53,17 +53,16 @@ def app_solve():
     global points, blocks_sets
     benefit = ''
     if request.method == 'POST':
-        mimic_offset_x = int(int(request.form.get('mimic_offset_x')) / ratio)
-        mimic_offset_y = int(int(request.form.get('mimic_offset_y')) / ratio)
-        vertical_offset = int(int(request.form.get('vertical_offset')) / ratio)
-        horizontal_offset = int(int(request.form.get('horizontal_offset')) / ratio)
+        mimic_offset_x = int(float(request.form.get('mimic_offset_x')) / ratio)
+        mimic_offset_y = int(float(request.form.get('mimic_offset_y')) / ratio)
+        vertical_offset = int(float(request.form.get('vertical_offset')) / ratio)
+        horizontal_offset = int(float(request.form.get('horizontal_offset')) / ratio)
         points = get_blocks_from_image(screenshot=filename, web_mode=True, mimic_offset_x=mimic_offset_x,
                                        mimic_offset_y=mimic_offset_y, vertical_offset=vertical_offset,
                                        horizontal_offset=horizontal_offset)
         messages = solve(points, web_mode=True)
         if len(messages) > 1:
             dir_name = f'{filename} Solutions'
-            os.remove(filename)
             for i, message in enumerate(messages):
                 if i == 0:
                     benefit = message
@@ -80,21 +79,17 @@ def app_solve():
 def app_get_order():
     if request.method == 'POST':
         blocks_set_number = int(request.form.get('blocks-set-number'))
-        image_path, blocks_set = blocks_sets[blocks_set_number]
-        message, duration = get_order(points, web_blocks=blocks_set, web_mode=True)
+        _, blocks_set = blocks_sets[blocks_set_number]
+        message, duration, order = get_order(points, web_blocks=blocks_set, web_mode=True)
+        image_path = save_order_as_image(order, points, filename, ratio)
         return render_template("order.html", message=message, duration=duration, image_path=image_path)
     return redirect('/')
 
-@app.route('/delete/<int:file_number>', methods=['GET'])
-def delete_files(file_number):
-    try:
-        shutil.rmtree(f'static/file uploading/{file_number}.png Solutions')
-    except:
-        print(f'Error while deleting files. Cant find {file_number}.png Solutions')
-    try:
-        os.remove(f'static/file uploading/{file_number}.png')
-    except:
-        pass
-    return ''
+
 if __name__ == '__main__':
     app.run()
+
+"""
+30px = 
+
+"""

@@ -185,7 +185,6 @@ var NoSleep = function () {
           _this2.enabled = true;
           console.log("Wake Lock active.");
           _this2._wakeLock.addEventListener("release", function () {
-            // ToDo: Potentially emit an event for the page to observe since
             // Wake Lock releases happen when page visibility changes.
             // (https://web.dev/wakelock/#wake-lock-lifecycle)
             console.log("Wake Lock released.");

@@ -7,7 +7,7 @@ import numpy as np
 COLS = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6}
 REV_COL = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G'}
 MODES = {'DEBUG': 0, 'PLAY': 1, 'SOLVE': 2, 'GET_ORDER':3}
-horizontal_fix, vertical_fix, width_fix, height_fix = 0, 0, 0, 0
+horizontal_fix, vertical_fix, width_fix, height_fix = 0, 0, 0, 30
 RELATIVE_ON_SCREEN_POSITION = 0.6015
 RELATIVE_ON_MIMIC_POSITION = 12 / 1225
 CIRCLE_RADIUS_RATIO = 10 / 566
@@ -36,7 +36,7 @@ def main():
         return
 
     if mode == MODES['DEBUG']:
-        height_fix = -75
+        height_fix = 0
         width_fix = 0
         horizontal_fix = 0
         vertical_fix = 0
@@ -247,6 +247,24 @@ def play_game(points):
             exit()
 
 
+def play_game_web(points, player_move, frog_indexes):
+    board = Board()
+    board.update_board(points)
+    board.frog = frog_indexes
+    if player_move != board.frog:
+        for point in points:
+            _, _, i, j, _, _, is_block = point
+            if is_block is True and [i, j] == player_move:
+                point[-1] = False
+                break
+        i, j = player_move
+        board.matrix[i][j] = False
+        is_win = board.move()
+        if is_win in [True, False]:
+            return is_win, points, board.frog
+    return None, points, board.frog
+
+
 def solve(points, web_mode=False):
     maximum_benefit = 0
     web_messages = []
@@ -329,7 +347,7 @@ def get_order(points, web_blocks='', web_mode=False):
         blocks = input('Enter Blocks: ').strip().split(' ')
     blocks_to_remove = validate_blocks_input(blocks)
     if blocks_to_remove is None:
-        return
+        return None, None, None
     start = time.time()
     order = find_order(points, blocks_to_remove)
     duration = int(time.time() - start)
@@ -414,8 +432,8 @@ def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=0, mim
         dominant = palette[np.argmax(counts)]
         point_matrix_i, point_matrix_j = (int((offset_i+ROWS_NUMBER)/2), offset_j+3)
         # point by pixels, point by matrix index, is there a block at the point
-        points.append((point_i, point_j, point_matrix_i, point_matrix_j, offset_i, offset_j, bool(dominant[2] > 140)))
-    points.append((mimic_center_i, mimic_center_j, 3, 3, 0, 0, True))  # adds mimic treasure block
+        points.append([point_i, point_j, point_matrix_i, point_matrix_j, offset_i, offset_j, bool(dominant[2] > 140)])
+    points.append([mimic_center_i, mimic_center_j, 3, 3, 0, 0, True])  # adds mimic treasure block
     return points
 
 
@@ -588,7 +606,7 @@ def save_order_as_image(order, points, filename, ratio):
         points_vertical_distance = int((points[7][0] - points[6][0]) / 2)
         font_scale = points_horizontal_distance / 12
         thickness = int(font_scale * 2) + 1
-        if block_number == 9:
+        if block_number == NUMBER_OF_BLOCKS_TO_REMOVE - 1:
             points_horizontal_distance = points_horizontal_distance_10
 
         cv2.putText(img_rgb, str(block_number + 1), (int(pixel_j-points_horizontal_distance),

@@ -31,9 +31,13 @@
                 ctx.fill();
             }
             document.getElementById("mimic_offset_x").value = mimic_x_offset;
+            document.getElementById("mimic_offset_x_play").value = mimic_x_offset;
             document.getElementById("mimic_offset_y").value = mimic_y_offset;
+            document.getElementById("mimic_offset_y_play").value = mimic_y_offset;
             document.getElementById("vertical_offset").value = vertical_offset;
+            document.getElementById("vertical_offset_play").value = vertical_offset;
             document.getElementById("horizontal_offset").value = horizontal_offset;
+            document.getElementById("horizontal_offset_play").value = horizontal_offset;
             document.getElementById("point_radius").value = point_radius;
 
 
@@ -193,6 +197,14 @@
                 <input type="button" onclick="fix_points()" value="Change">
                 <br>
                 <input type="submit" id="solve" value="Solve" />
+                <br>
+            </form>
+            <form action = "/play" method = "post">
+                <input type="hidden" id="mimic_offset_x_play" name="mimic_offset_x_play" />
+                <input type="hidden" id="mimic_offset_y_play" name="mimic_offset_y_play"/>
+                <input type="hidden" id="vertical_offset_play" name="vertical_offset_play"/>
+                <input type="hidden" id="horizontal_offset_play" name="horizontal_offset_play"/>
+                <input type="submit" id="play" value="Play" />
             </form>
         {% else %}
             File upload failed.

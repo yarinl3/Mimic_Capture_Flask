@@ -1,10 +1,12 @@
 import os, time, cv2, shutil
 from flask import Flask, render_template, request, redirect
-from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as_image
+from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as_image, play_game_web
 from pathlib import Path
 ratio = 1
 points = []
 blocks_sets = []
+frog_indexes = [None, None]
+moves_counter = 0
 filename = ''
 app = Flask(__name__)
 
@@ -22,7 +24,8 @@ def index():
 
 @app.route('/fix_points', methods=['POST'])
 def fix_points():
-    global ratio, points, filename, blocks_sets
+    global ratio, points, filename, blocks_sets, frog_indexes
+    frog_indexes = [3, 3]
     success_flag = False
     filename = ''
     image_height, image_width = 0, 0
@@ -86,10 +89,44 @@ def app_get_order():
     return redirect('/')
 
 
+@app.route('/play', methods=['GET', 'POST'])
+def play():
+    global points, frog_indexes, moves_counter
+    blocks = []
+    if points:
+        if request.method == 'GET':
+            i = request.args.get('block_i')
+            j = request.args.get('block_j')
+            if i:
+                if frog_indexes[0] in [0,6] or frog_indexes[1] in [0,6]:
+                    return redirect('/')
+                i = int(i)
+                j = int(j)
+                status, points, frog_indexes = play_game_web(points, [i, j], frog_indexes)
+                moves_counter += 1
+                if moves_counter == 10 and status is not True:
+                    status = False
+                for point in points:
+                    if point[-1] is True:
+                        blocks.append(list(point[2:4]))
+                return render_template("play.html", blocks=blocks, is_win=status, frog_indexes=frog_indexes)
+            else:
+                for point in points:
+                    if point[-1] is True:
+                        blocks.append(list(point[2:4]))
+                return render_template("play.html", blocks=blocks, is_win=None, frog_indexes=frog_indexes)
+        if request.method == 'POST':
+            mimic_offset_x = int(float(request.form.get('mimic_offset_x_play')) / ratio)
+            mimic_offset_y = int(float(request.form.get('mimic_offset_y_play')) / ratio)
+            vertical_offset = int(float(request.form.get('vertical_offset_play')) / ratio)
+            horizontal_offset = int(float(request.form.get('horizontal_offset_play')) / ratio)
+            points = get_blocks_from_image(screenshot=filename, web_mode=True, mimic_offset_x=mimic_offset_x,
+                                           mimic_offset_y=mimic_offset_y, vertical_offset=vertical_offset,
+                                           horizontal_offset=horizontal_offset)
+            return redirect('/play')
+
+    return redirect('/')
+
+
 if __name__ == '__main__':
     app.run()
-
-"""
-30px = 
-
-"""

@@ -31,13 +31,9 @@
                 ctx.fill();
             }
             document.getElementById("mimic_offset_x").value = mimic_x_offset;
-            document.getElementById("mimic_offset_x_play").value = mimic_x_offset;
             document.getElementById("mimic_offset_y").value = mimic_y_offset;
-            document.getElementById("mimic_offset_y_play").value = mimic_y_offset;
             document.getElementById("vertical_offset").value = vertical_offset;
-            document.getElementById("vertical_offset_play").value = vertical_offset;
             document.getElementById("horizontal_offset").value = horizontal_offset;
-            document.getElementById("horizontal_offset_play").value = horizontal_offset;
             document.getElementById("point_radius").value = point_radius;
 
 
@@ -187,7 +183,7 @@
         {% if success == True %}
             Please fix points:
             <canvas id="canvas" width="{{ image_width }}px" height="{{ image_height }}px"></canvas>
-            <form action = "/solve" method = "post"><table>
+            <form method = "post"><table class="table1">
                     <tbody>
                         <tr>
                             <td></td>
@@ -228,18 +224,12 @@
                 <label for="specific_benefit">Specific benefit: </label>
                 <input id="specific_benefit" name="specific_benefit" value="" />
                 <br>
-                <input type="submit" id="solve" value="Solve" />
-            </form>
-            <form action = "/play" method = "post" style="height: 0">
-                    <input type="submit" style="position:relative;left: 30%; top: -86px;" id="play" value="Play" />
-                    <input type="hidden" id="mimic_offset_x_play" name="mimic_offset_x_play" />
-                    <input type="hidden" id="mimic_offset_y_play" name="mimic_offset_y_play"/>
-                    <input type="hidden" id="vertical_offset_play" name="vertical_offset_play"/>
-                    <input type="hidden" id="horizontal_offset_play" name="horizontal_offset_play"/>
-            </form>
+                <button type="submit" id="solve" formaction="/solve">Solve</button><button type="submit" style="margin-left: 25%" id="play" formaction="/play">Play</button>
+                <br>
+                <div style="margin-left: 20%"><input type="checkbox" name="get_order"> Solve + Get order (May take some time)</div>
+            </form></pre>
         {% else %}
             File upload failed.
             Please make sure the file is an image of type: png / jpg / jpeg / webp.
         {% endif %}
-    </pre>
 {% endblock %}

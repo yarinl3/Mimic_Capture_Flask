@@ -20,7 +20,7 @@ table, td, th {
   border: 1px;
 }
 
-table{
+.table1{
     border-collapse: collapse;
     text-align:center;
     width: 100px;

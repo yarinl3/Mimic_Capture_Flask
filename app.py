@@ -61,16 +61,21 @@ def fix_points():
                                image_height=image_height, image_width=image_width, points=fixed_points, ratio=ratio)
     return redirect('/')
 
+def update_offsets(req):
+    global mimic_offset_x, mimic_offset_y, vertical_offset, horizontal_offset
+    mimic_offset_x = int(float(req.form.get('mimic_offset_x')) / ratio)
+    mimic_offset_y = int(float(req.form.get('mimic_offset_y')) / ratio)
+    vertical_offset = int(float(req.form.get('vertical_offset')) / ratio)
+    horizontal_offset = int(float(req.form.get('horizontal_offset')) / ratio)
+
 @app.route('/solve', methods=['POST'])
 def app_solve():
     global points, blocks_sets, mimic_offset_x, mimic_offset_y, vertical_offset, horizontal_offset
     benefit = ''
     if request.method == 'POST':
-        mimic_offset_x = int(float(request.form.get('mimic_offset_x')) / ratio)
-        mimic_offset_y = int(float(request.form.get('mimic_offset_y')) / ratio)
-        vertical_offset = int(float(request.form.get('vertical_offset')) / ratio)
-        horizontal_offset = int(float(request.form.get('horizontal_offset')) / ratio)
+        update_offsets(request)
         specific_benefit = request.form.get('specific_benefit')
+        checkbox = True if request.form.get('get_order') == 'on' else False
 
         points = get_blocks_from_image(screenshot=filename, web_mode=True, mimic_offset_x=mimic_offset_x,
                                        mimic_offset_y=mimic_offset_y, vertical_offset=vertical_offset,
@@ -80,6 +85,16 @@ def app_solve():
             messages = solve(points, web_mode=True, specific_benefit=specific_benefit)
         else:
             messages = solve(points, web_mode=True)
+        if checkbox:
+            return_value = None
+            for blocks_set in messages[1:]:
+                return_value, found = app_get_order(blocks_set=blocks_set)
+                if found:
+                    return return_value
+            if return_value:
+                return return_value
+            return render_template("order.html", message='No order found.', duration=0, image_path=filename)
+
         if len(messages) > 1:
             dir_name = f'{filename} Solutions'
             for i, message in enumerate(messages):
@@ -95,12 +110,16 @@ def app_solve():
     return redirect('/')
 
 @app.route('/get_order', methods=['POST'])
-def app_get_order():
+def app_get_order(blocks_set=None):
     if request.method == 'POST':
-        blocks_set_number = int(request.form.get('blocks-set-number'))
-        _, blocks_set = blocks_sets[blocks_set_number]
+        if blocks_set is None:
+            blocks_set_number = int(request.form.get('blocks-set-number'))
+            _, blocks_set = blocks_sets[blocks_set_number]
         message, duration, order = get_order(points, web_blocks=blocks_set, web_mode=True)
         image_path = save_order_as_image(order, points, filename, ratio)
+        found = False if message == 'No order found.' else True
+        if blocks_set:
+            return render_template("order.html", message=message, duration=duration, image_path=image_path), found
         return render_template("order.html", message=message, duration=duration, image_path=image_path)
     return redirect('/')
 
@@ -151,10 +170,7 @@ def play():
                 return render_template("play.html", blocks=blocks, is_win=None, frog_indexes=frog_indexes,
                                        moves_counter=moves_counter, benefit=0)
         if request.method == 'POST':
-            mimic_offset_x = int(float(request.form.get('mimic_offset_x_play')) / ratio)
-            mimic_offset_y = int(float(request.form.get('mimic_offset_y_play')) / ratio)
-            vertical_offset = int(float(request.form.get('vertical_offset_play')) / ratio)
-            horizontal_offset = int(float(request.form.get('horizontal_offset_play')) / ratio)
+            update_offsets(request)
             points = get_blocks_from_image(screenshot=filename, web_mode=True, mimic_offset_x=mimic_offset_x,
                                            mimic_offset_y=mimic_offset_y, vertical_offset=vertical_offset,
                                            horizontal_offset=horizontal_offset)

@@ -326,9 +326,6 @@ def solve(points, web_mode=False, specific_benefit=None):
                 maximum_benefit = benefit
                 blocks_to_remove_with_maximum_benefit = list(blocks_to_remove) + borders
                 benefit_list.append([benefit, blocks_to_remove_with_maximum_benefit])
-
-
-
     counter = 1
     if len(benefit_list) != 0:
         if web_mode:

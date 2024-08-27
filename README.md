@@ -1,3 +1,5 @@
+This Reamde made before the web version. The new one will update soon.
+
 To run the script from IDE select mode and screenshot_path.  
 For example:
 ```

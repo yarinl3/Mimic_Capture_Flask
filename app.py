@@ -1,6 +1,6 @@
 import os, time, cv2, shutil
 from flask import Flask, render_template, request, redirect
-from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as_image, play_game_web
+from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as_image, play_game_web, Board
 from pathlib import Path
 ratio = 1
 points = []
@@ -112,6 +112,7 @@ def restart():
 def play():
     global points, frog_indexes, moves_counter, mimic_offset_x, mimic_offset_y, vertical_offset, horizontal_offset
     blocks = []
+    benefit = 0
     if points:
         if request.method == 'GET':
             i = request.args.get('block_i')
@@ -128,14 +129,21 @@ def play():
                 for point in points:
                     if point[-1] is True:
                         blocks.append(list(point[2:4]))
+                if status is True:
+                    board = Board()
+                    board.update_board(points)
+                    board.frog = frog_indexes
+                    reachable_blocks = board.get_reachable_blocks()
+                    benefit = len(reachable_blocks)
+
                 return render_template("play.html", blocks=blocks, is_win=status,
-                                       frog_indexes=frog_indexes, moves_counter=moves_counter)
+                                       frog_indexes=frog_indexes, moves_counter=moves_counter, benefit=benefit)
             else:
                 for point in points:
                     if point[-1] is True:
                         blocks.append(list(point[2:4]))
                 return render_template("play.html", blocks=blocks, is_win=None, frog_indexes=frog_indexes,
-                                       moves_counter=moves_counter)
+                                       moves_counter=moves_counter, benefit=0)
         if request.method == 'POST':
             mimic_offset_x = int(float(request.form.get('mimic_offset_x_play')) / ratio)
             mimic_offset_y = int(float(request.form.get('mimic_offset_y_play')) / ratio)

@@ -4,8 +4,8 @@
 <title>Fix Points</title>
 <script src="/static/js/NoSleep.js"></script>
 <script type="text/javascript">
-    var noSleep = new NoSleep();
-    var mimic_x_offset = 0,
+    let noSleep = new NoSleep();
+    let mimic_x_offset = 0,
         mimic_y_offset = 0,
         vertical_offset = 0,
         horizontal_offset = 0,
@@ -14,9 +14,9 @@
     {% for point in points %}
     points.push([{{ point[0] }}, {{ point[1] }}, {{ point[2] }}, {{ point[3] }}]);
     {% endfor %}
-    var mimic_point = points[points.length-1];
+    let mimic_point = points[points.length-1];
     function drawImage(){
-        var canvas = document.getElementById("canvas"),
+        let canvas = document.getElementById("canvas"),
             ctx = canvas.getContext("2d"),
             img = new Image();
         img.onload = function(){
@@ -24,7 +24,7 @@
             ctx.drawImage(img, 0, 0, {{ image_width }}, {{ image_height }});
             for (const point of points){
                 ctx.beginPath();
-                var point_x = point[0] + mimic_x_offset + point[3]*horizontal_offset,
+                let point_x = point[0] + mimic_x_offset + point[3]*horizontal_offset,
                     point_y = point[1] + mimic_y_offset + point[2]*vertical_offset;
                 ctx.arc(point_x, point_y, point_radius, 0, 2 * Math.PI, false);
                 ctx.fillStyle = 'blue';
@@ -46,7 +46,7 @@
     }
 
     function fix_points(){
-        var mimic_x_offset_input = document.getElementById("mimic_offset_x").value,
+        let mimic_x_offset_input = document.getElementById("mimic_offset_x").value,
             mimic_y_offset_input = document.getElementById("mimic_offset_y").value,
             vertical_offset_input = document.getElementById("vertical_offset").value,
             horizontal_offset_input = document.getElementById("horizontal_offset").value,
@@ -149,10 +149,37 @@
 
         let solve = document.getElementById("solve");
         solve.addEventListener('click', function enableNoSleep() {
+            document.cookie = `mimic_x_offset=${mimic_x_offset}`;
+            document.cookie = `mimic_y_offset=${mimic_y_offset}`;
+            document.cookie = `vertical_offset=${vertical_offset}`;
+            document.cookie = `horizontal_offset=${horizontal_offset}`;
+            document.cookie = `point_radius=${point_radius}`;
             document.removeEventListener('click', enableNoSleep, false);
             noSleep.enable();
         }, false);
     }, false);
+    function load_parameters(){
+        let cookies = decodeURIComponent(document.cookie);
+        for (let cookie of cookies.split(';')){
+            while (cookie.charAt(0) === ' ')
+                cookie = cookie.substring(1);
+            let elements = cookie.split('=');
+            if (elements.length === 2){
+                if (elements[0] === "mimic_x_offset")
+                    mimic_x_offset = Number(elements[1]);
+                if (elements[0] === "mimic_y_offset")
+                    mimic_y_offset = Number(elements[1]);
+                if (elements[0] === "vertical_offset")
+                    vertical_offset = Number(elements[1]);
+                if (elements[0] === "horizontal_offset")
+                    horizontal_offset = Number(elements[1]);
+                if (elements[0] === "point_radius")
+                    point_radius = Number(elements[1]);
+            }
+        }
+        drawImage();
+
+    }
 </script>
 {% endblock %}
 {% block body %}
@@ -195,6 +222,8 @@
                 <input id="point_radius" />
                 <br>
                 <input type="button" onclick="fix_points()" value="Change">
+                <br>
+                <input type="button" onclick="load_parameters()" value="Load last parameters">
                 <br>
                 <label for="specific_benefit">Specific benefit: </label>
                 <input id="specific_benefit" name="specific_benefit" value="" />

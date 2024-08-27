@@ -197,14 +197,13 @@
                 <input type="button" onclick="fix_points()" value="Change">
                 <br>
                 <input type="submit" id="solve" value="Solve" />
-                <br>
             </form>
-            <form action = "/play" method = "post">
-                <input type="hidden" id="mimic_offset_x_play" name="mimic_offset_x_play" />
-                <input type="hidden" id="mimic_offset_y_play" name="mimic_offset_y_play"/>
-                <input type="hidden" id="vertical_offset_play" name="vertical_offset_play"/>
-                <input type="hidden" id="horizontal_offset_play" name="horizontal_offset_play"/>
-                <input type="submit" id="play" value="Play" />
+            <form action = "/play" method = "post" style="height: 0">
+                    <input type="submit" style="position:relative;left: 30%; top: -86px;" id="play" value="Play" />
+                    <input type="hidden" id="mimic_offset_x_play" name="mimic_offset_x_play" />
+                    <input type="hidden" id="mimic_offset_y_play" name="mimic_offset_y_play"/>
+                    <input type="hidden" id="vertical_offset_play" name="vertical_offset_play"/>
+                    <input type="hidden" id="horizontal_offset_play" name="horizontal_offset_play"/>
             </form>
         {% else %}
             File upload failed.

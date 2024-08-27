@@ -134,9 +134,11 @@
 {% endblock %}
 {% block body %}
    <canvas id="canvas"></canvas>
+    <h1>{{ 10 - moves_counter }}</h1>
     {% if is_win == True %}
     <h1>You win!</h1>
     {% elif is_win == False %}
     <h1>You lose!</h1>
     {% endif %}
+    <input type="button" style="position:relative;left: 40%;" onclick="window.location = '/restart';" value="Restart" /><br>
 {% endblock %}

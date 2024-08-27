@@ -70,10 +70,16 @@ def app_solve():
         mimic_offset_y = int(float(request.form.get('mimic_offset_y')) / ratio)
         vertical_offset = int(float(request.form.get('vertical_offset')) / ratio)
         horizontal_offset = int(float(request.form.get('horizontal_offset')) / ratio)
+        specific_benefit = request.form.get('specific_benefit')
+
         points = get_blocks_from_image(screenshot=filename, web_mode=True, mimic_offset_x=mimic_offset_x,
                                        mimic_offset_y=mimic_offset_y, vertical_offset=vertical_offset,
                                        horizontal_offset=horizontal_offset)
-        messages = solve(points, web_mode=True)
+        if specific_benefit and specific_benefit.isdigit() and int(specific_benefit) > 0:
+            specific_benefit = int(specific_benefit)
+            messages = solve(points, web_mode=True, specific_benefit=specific_benefit)
+        else:
+            messages = solve(points, web_mode=True)
         if len(messages) > 1:
             dir_name = f'{filename} Solutions'
             for i, message in enumerate(messages):

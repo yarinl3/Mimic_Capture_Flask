@@ -265,7 +265,7 @@ def play_game_web(points, player_move, frog_indexes):
     return None, points, board.frog
 
 
-def solve(points, web_mode=False):
+def solve(points, web_mode=False, specific_benefit=None):
     maximum_benefit = 0
     web_messages = []
     benefit_list = []
@@ -316,10 +316,18 @@ def solve(points, web_mode=False):
                         true_blocks += 1
             benefit = true_blocks - amount_of_blocks
 
-            if benefit >= maximum_benefit:
+            if specific_benefit != None:
+                if benefit == specific_benefit:
+                    maximum_benefit = benefit
+                    blocks_to_remove_with_maximum_benefit = list(blocks_to_remove) + borders
+                    benefit_list.append([benefit, blocks_to_remove_with_maximum_benefit])
+
+            elif benefit >= maximum_benefit:
                 maximum_benefit = benefit
                 blocks_to_remove_with_maximum_benefit = list(blocks_to_remove) + borders
                 benefit_list.append([benefit, blocks_to_remove_with_maximum_benefit])
+
+
 
     counter = 1
     if len(benefit_list) != 0:

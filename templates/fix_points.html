@@ -57,9 +57,8 @@
             drawImage();
         }
     }
-
-    document.addEventListener("DOMContentLoaded", drawImage, false);
     document.addEventListener("DOMContentLoaded", function(){
+        load_parameters();
         let up =  document.getElementById('up'),
         down =  document.getElementById('down'),
         right =  document.getElementById('right'),
@@ -174,7 +173,14 @@
             }
         }
         drawImage();
-
+    }
+    function reset_parameters(){
+        mimic_x_offset = 0;
+        mimic_y_offset = 0;
+        vertical_offset = 0;
+        horizontal_offset = 0;
+        point_radius = 7;
+        drawImage();
     }
 </script>
 {% endblock %}
@@ -219,7 +225,7 @@
                 <br>
                 <input type="button" onclick="fix_points()" value="Change">
                 <br>
-                <input type="button" onclick="load_parameters()" value="Load last parameters">
+                <input type="button" onclick="reset_parameters()" value="Reset parameters">
                 <br>
                 <label for="specific_benefit">Specific benefit: </label>
                 <input id="specific_benefit" name="specific_benefit" value="" />

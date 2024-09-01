@@ -1,4 +1,13 @@
-This Readme made before the web version. The new one will update soon.
+This project can run in web mode with flask with nice user interface and also can run through [terminal / IDE with low user interface](#modes).
+
+
+
+
+
+
+
+
+
 
 To run the script from IDE select mode and screenshot_path.  
 For example:

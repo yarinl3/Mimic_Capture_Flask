@@ -20,12 +20,12 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 6. Create a new environment with the command: virtualenv venv<br>
 <img width="569" alt="image" src="https://github.com/user-attachments/assets/2d9c9e93-ae9d-458f-99ea-5056ee2d9607"><br>
 
-7. Activate the environment with the command:
-Mac / Ubuntu:
-	source venv/bin/activate
-Windows:
-	.\venv\Scripts\activate
-	if not works try:
+7. Activate the environment with the command:<br>
+Mac / Ubuntu:<br>
+	source venv/bin/activate<br>
+Windows:<br>
+	.\venv\Scripts\activate<br>
+	if not works try:<br>
 	.\venv\bin\activate<br>
 <img width="378" alt="image" src="https://github.com/user-attachments/assets/dfa54877-b436-4302-8b4b-f5c5f5adc569"><br>
 

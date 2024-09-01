@@ -1,7 +1,6 @@
 This project can run in [web mode with flask](#web-mode) with nice user interface and also can run through [terminal / IDE with low user interface](#ide--terminal).
 
-# Web Mode
-## Installation instructions:
+# Installation instructions:
 1. Download zip from and extract it. ([for multi-users download from the suitable branch](https://github.com/yarinl3/Mimic_Capture_Flask/tree/test-multiusers))<br>
 <img width="412" alt="image" src="https://github.com/user-attachments/assets/237bb8d8-3435-4f57-af10-ca4216c223b3"><br>
 
@@ -32,9 +31,11 @@ Windows:<br>
 8. Install Mimic dependencies with the command: python -m pip install -r requirements.txt<br>
 <img width="637" alt="image" src="https://github.com/user-attachments/assets/87876faa-8c09-453f-8cef-7a3ff40bbfaa"><br>
 
+Web mode:<br>
 9. Run the server with the command: flask run --host=0.0.0.0 --port=1234<br>
 <img width="815" alt="image" src="https://github.com/user-attachments/assets/610292e8-afc5-4999-8beb-7544fda6d690"><br>
 
+# Web Mode
 * The first url can opened only from the same computer.<br>The other url can opened from any device that connected to the same local network.
 * To close the server use ctrl+c otherwise you will have to use other port next run.
 * <b>From this moment on, to run the program again, you need to open the terminal and perform steps 5 -> 7 -> 9. </b>

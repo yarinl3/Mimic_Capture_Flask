@@ -40,13 +40,14 @@ Windows:<br>
 * <b>From this moment on, to run the program again, you need to open the terminal and perform steps 5 -> 7 -> 9. </b>
 
 # IDE / Terminal
+Install as in web mode up to step 8 (inclusive).
 To run the script from IDE select mode and screenshot_path.  
 For example:
 ```
 mode = MODES['PLAY']
 screenshot_path = '1.png'
 ```
-To run the script from terminal load the environment if it exists, run the script with two parameters: screenshot path and mode.  
+To run the script from terminal load the environment if it exists (step 7), run the script with two parameters: screenshot path and mode.  
 For example:
 ```
 py ~/pythonProject/Mimic_Capture.py test.png get_order
@@ -80,4 +81,4 @@ To fix it do this steps:
 4. Change horizontal_fix, vertical_fix parameters to place other dots in the middle of their blocks.
 5. Change the global parameters that in the head of the script to the correct values.
 
-For any other questions: yarinl330@gmail.com
+For questions and bug reporting: yarinl330@gmail.com

@@ -42,6 +42,18 @@ Web mode:<br>
 * To close the server use ctrl+c otherwise you will have to use other port next run.
 * <b>From this moment on, to run the program again, you need to open the terminal and perform steps 5 -> 7 -> 9. </b>
 
+## How to use
+Upload screenshot of the board (initial game state and only png / jpg / jpeg / webp)<br>
+<img width="386" alt="image" src="https://github.com/user-attachments/assets/cd06f574-28d0-4c01-837d-2353a3606109">
+<br><br>
+Different phones have different resolutions so you need to correct the position of the dots.
+First of all place the central point in the center of the mimic treasure block with X / Y offsets.
+Then widen the distance between the points so that they are roughly in the center of the blocks using vertical / horizontal offsets.
+Click the change button to apply.
+The "Solve" button will display all results with maximum benefit.
+If you want to skip it and get the order of the first result use the checkbox before click "Solve".
+In case all the solutions have no winning order, you can look for solutions with smaller benefit using "Specific benefit" textbox before click "Solve".
+
 # IDE / Terminal
 Install as in web mode up to step 8 (inclusive).
 To run the script from IDE select mode and screenshot_path.  

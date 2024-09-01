@@ -61,7 +61,12 @@ In case all the solutions have no winning order, you can look for solutions with
 ### Solutions Page
 <img width="471" alt="image" src="https://github.com/user-attachments/assets/e18246dd-fa25-4d35-8564-3401fe39bbd5">
 
-<br>
+### Get Order Page
+<img width="565" alt="image" src="https://github.com/user-attachments/assets/3cba2cf5-9d1f-4ead-900f-9766a372f410">
+
+### Play Page
+<img width="472" alt="image" src="https://github.com/user-attachments/assets/af486e66-4259-4e0c-aa39-1fb36f554af0">
+
 # IDE / Terminal
 Install as in web mode up to step 8 (inclusive).
 To run the script from IDE select mode and screenshot_path.  

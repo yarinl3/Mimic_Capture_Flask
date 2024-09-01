@@ -38,10 +38,12 @@
                         <label>Blocks to remove: {{ blocks_set }}</label>
                         <br>
                         <input type="hidden" name="blocks-set-number" value="{{ loop.index0 }}" />
+                        <input type="hidden" name="benefit" value="{{ benefit }}" />
                         <input style="margin-top:20px" type="submit" id="get_order" value="Get Order" />
                     </form>
                 </div>
             </div>
         {% endfor %}
     {% endif %}
+    <input style="margin-top: 50px; margin-left: 35%" type="button" onclick="window.location = '/';" value="Back To Home Page" /><br>
 {% endblock %}

@@ -88,12 +88,12 @@ def app_solve():
         if checkbox:
             return_value = None
             for blocks_set in messages[1:]:
-                return_value, found = app_get_order(blocks_set=blocks_set)
+                return_value, found = app_get_order(blocks_set=blocks_set, benefit=messages[0])
                 if found:
                     return return_value
             if return_value:
                 return return_value
-            return render_template("order.html", message='No order found.', duration=0, image_path=filename)
+            return render_template("order.html", message='No order found.', duration=0, image_path=filename, benefit=0)
 
         if len(messages) > 1:
             dir_name = f'{filename} Solutions'
@@ -110,8 +110,10 @@ def app_solve():
     return redirect('/')
 
 @app.route('/get_order', methods=['POST'])
-def app_get_order(blocks_set=None):
+def app_get_order(blocks_set=None, benefit=None):
     if request.method == 'POST':
+        if benefit is None:
+            benefit = request.form.get('benefit')
         if blocks_set is None:
             blocks_set_number = int(request.form.get('blocks-set-number'))
             _, blocks_set = blocks_sets[blocks_set_number]
@@ -119,8 +121,10 @@ def app_get_order(blocks_set=None):
         image_path = save_order_as_image(order, points, filename, ratio)
         found = False if message == 'No order found.' else True
         if blocks_set:
-            return render_template("order.html", message=message, duration=duration, image_path=image_path), found
-        return render_template("order.html", message=message, duration=duration, image_path=image_path)
+            return render_template("order.html", message=message, duration=duration,
+                                   image_path=image_path, benefit=benefit), found
+        return render_template("order.html", message=message, duration=duration, image_path=image_path,
+                               benefit=benefit), found
     return redirect('/')
 
 @app.route('/restart', methods=['GET'])

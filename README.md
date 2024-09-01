@@ -1,4 +1,6 @@
-This project can run in web mode with flask with nice user interface and also can run through [terminal / IDE with low user interface](#modes).
+This project can run in [web mode with flask](#web-mode) with nice user interface and also can run through [terminal / IDE with low user interface](#ide--terminal).
+
+# Web Mode
 
 
 
@@ -7,8 +9,7 @@ This project can run in web mode with flask with nice user interface and also ca
 
 
 
-
-
+# IDE / Terminal
 To run the script from IDE select mode and screenshot_path.  
 For example:
 ```

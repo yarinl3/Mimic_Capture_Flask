@@ -22,11 +22,11 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 
 7. Activate the environment with the command:<br>
 Mac / Ubuntu:<br>
-	source venv/bin/activate<br>
+&nbsp;&nbsp;&nbsp;&nbsp;source venv/bin/activate<br>
 Windows:<br>
-	.\venv\Scripts\activate<br>
-	if not works try:<br>
-	.\venv\bin\activate<br>
+&nbsp;&nbsp;&nbsp;&nbsp;.\venv\Scripts\activate<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If not works try:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;.\venv\bin\activate<br>
 <img width="378" alt="image" src="https://github.com/user-attachments/assets/dfa54877-b436-4302-8b4b-f5c5f5adc569"><br>
 
 8. Install Mimic dependencies with the command: python -m pip install -r requirements.txt<br>

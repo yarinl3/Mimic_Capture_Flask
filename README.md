@@ -35,10 +35,11 @@ Web mode:<br>
 9. Run the server with the command: flask run --host=0.0.0.0 --port=1234<br>
 <img width="815" alt="image" src="https://github.com/user-attachments/assets/610292e8-afc5-4999-8beb-7544fda6d690">
 <br><br>
-# Web Mode
-* The first url can opened only from the same computer.<br>
-  The other url can opened from any device that connected to the same local network.<br>
-* To close the server use ctrl+c otherwise you will have to use other port next run.<br>
+
+# Web Mode  
+* The first url can opened only from the same computer.
+  The other url can opened from any device that connected to the same local network.
+* To close the server use ctrl+c otherwise you will have to use other port next run.
 * <b>From this moment on, to run the program again, you need to open the terminal and perform steps 5 -> 7 -> 9. </b>
 
 # IDE / Terminal

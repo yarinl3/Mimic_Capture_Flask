@@ -37,7 +37,7 @@ Web mode:<br>
 <br><br>
 
 # Web Mode  
-* The first url can opened only from the same computer.
+* The first url can opened only from the same computer.<br>
   The other url can opened from any device that connected to the same local network.
 * To close the server use ctrl+c otherwise you will have to use other port next run.
 * <b>From this moment on, to run the program again, you need to open the terminal and perform steps 5 -> 7 -> 9. </b>

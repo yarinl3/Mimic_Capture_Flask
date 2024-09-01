@@ -3,22 +3,22 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 # Installation instructions:
 1. Download zip from and extract it. ([for multi-users download from the suitable branch](https://github.com/yarinl3/Mimic_Capture_Flask/tree/test-multiusers))  
 <img width="412" alt="image" src="https://github.com/user-attachments/assets/237bb8d8-3435-4f57-af10-ca4216c223b3">  
-
+  
 2. Check if python exist with the command 'python' in terminal / cmd. (ctrl+z to exit)  
 <img width="572" alt="image" src="https://github.com/user-attachments/assets/5002b6f9-51e7-40c6-833e-b4738b1a5c60">  
-
+  
 3. If python does not exist [download python](https://www.python.org/downloads/).  
 <img width="663" alt="image" src="https://github.com/user-attachments/assets/7f180546-e93c-43f3-ba83-d3a4291abaa4">  
-
+  
 4. Install virtualenv package with the command: python -m pip install virtualenv  
 <img width="568" alt="image" src="https://github.com/user-attachments/assets/6b90d767-cff9-4190-93cb-76fa76057e8f">  
-
+  
 5. Nevigate to the extract folder with 'cd' command.  
 <img width="343" alt="image" src="https://github.com/user-attachments/assets/4aba4cf9-7166-456b-b156-f59fd698ab9c">  
-
+  
 6. Create a new environment with the command: virtualenv venv  
 <img width="569" alt="image" src="https://github.com/user-attachments/assets/2d9c9e93-ae9d-458f-99ea-5056ee2d9607">  
-
+  
 7. Activate the environment with the command:  
 Mac / Ubuntu:  
 &nbsp;&nbsp;&nbsp;&nbsp;source venv/bin/activate  
@@ -27,14 +27,14 @@ Windows:
 &nbsp;&nbsp;&nbsp;&nbsp;If not works try:  
 &nbsp;&nbsp;&nbsp;&nbsp;.\venv\bin\activate  
 <img width="378" alt="image" src="https://github.com/user-attachments/assets/dfa54877-b436-4302-8b4b-f5c5f5adc569">  
-
+  
 8. Install Mimic dependencies with the command: python -m pip install -r requirements.txt  
 <img width="637" alt="image" src="https://github.com/user-attachments/assets/87876faa-8c09-453f-8cef-7a3ff40bbfaa">  
-
+  
 Web mode:  
 9. Run the server with the command: flask run --host=0.0.0.0 --port=1234  
 <img width="815" alt="image" src="https://github.com/user-attachments/assets/610292e8-afc5-4999-8beb-7544fda6d690">  
-
+  
 # Web Mode
 * The first url can opened only from the same computer.  
   The other url can opened from any device that connected to the same local network.

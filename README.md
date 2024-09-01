@@ -2,22 +2,22 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 
 # Web Mode
 ## Installation instructions:
-1. Download zip from and extract it. ([for multi-users download from the suitable branch](https://github.com/yarinl3/Mimic_Capture_Flask/tree/test-multiusers))
+1. Download zip from and extract it. ([for multi-users download from the suitable branch](https://github.com/yarinl3/Mimic_Capture_Flask/tree/test-multiusers))<br>
 <img width="412" alt="image" src="https://github.com/user-attachments/assets/237bb8d8-3435-4f57-af10-ca4216c223b3"><br>
 
-2. Check if python exist with the command 'python' in terminal. (ctrl+z to exit)
+2. Check if python exist with the command 'python' in terminal. (ctrl+z to exit)<br>
 <img width="572" alt="image" src="https://github.com/user-attachments/assets/5002b6f9-51e7-40c6-833e-b4738b1a5c60"><br>
 
-3. If python does not exist [download python](https://www.python.org/downloads/).
+3. If python does not exist [download python](https://www.python.org/downloads/).<br>
 <img width="663" alt="image" src="https://github.com/user-attachments/assets/7f180546-e93c-43f3-ba83-d3a4291abaa4"><br>
 
-4. Install virtualenv package with the command: python -m pip install virtualenv
+4. Install virtualenv package with the command: python -m pip install virtualenv<br>
 <img width="568" alt="image" src="https://github.com/user-attachments/assets/6b90d767-cff9-4190-93cb-76fa76057e8f"><br>
 
-5. Nevigate to the extract folder with 'cd' command.
+5. Nevigate to the extract folder with 'cd' command.<br>
 <img width="343" alt="image" src="https://github.com/user-attachments/assets/4aba4cf9-7166-456b-b156-f59fd698ab9c"><br>
 
-6. Create a new environment with the command: virtualenv venv
+6. Create a new environment with the command: virtualenv venv<br>
 <img width="569" alt="image" src="https://github.com/user-attachments/assets/2d9c9e93-ae9d-458f-99ea-5056ee2d9607"><br>
 
 7. Activate the environment with the command:
@@ -26,13 +26,13 @@ Mac / Ubuntu:
 Windows:
 	.\venv\Scripts\activate
 	if not works try:
-	.\venv\bin\activate
+	.\venv\bin\activate<br>
 <img width="378" alt="image" src="https://github.com/user-attachments/assets/dfa54877-b436-4302-8b4b-f5c5f5adc569"><br>
 
-8. Install Mimic dependencies with the command: python -m pip install -r requirements.txt
+8. Install Mimic dependencies with the command: python -m pip install -r requirements.txt<br>
 <img width="637" alt="image" src="https://github.com/user-attachments/assets/87876faa-8c09-453f-8cef-7a3ff40bbfaa"><br>
 
-9. Run the server with the command: flask run --host=0.0.0.0 --port=1234
+9. Run the server with the command: flask run --host=0.0.0.0 --port=1234<br>
 <img width="815" alt="image" src="https://github.com/user-attachments/assets/610292e8-afc5-4999-8beb-7544fda6d690"><br>
 
 10. The first url can opened only from the same computer. The other url can opened from any device that connected to the same local network.

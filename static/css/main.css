@@ -20,14 +20,6 @@ table, td, th {
   border: 1px;
 }
 
-.table1{
-    border-collapse: collapse;
-    text-align:center;
-    width: 100px;
-    height: 100px;
-    margin: auto;
-    font-size: large;
-}
 
 td{
     text-align: center;
@@ -52,4 +44,12 @@ h1, h2{
 
 .result-div {
     text-align:center;
+}
+
+#bootstrap-overrides .row{
+    --bs-gutter-x: 0;
+}
+
+#bootstrap-overrides .col-sm-6, .col-sm-5{
+    width: 50%;
 }

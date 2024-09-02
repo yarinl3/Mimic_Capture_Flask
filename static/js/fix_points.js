@@ -1,0 +1,200 @@
+let mimic_x_offset = 0,
+    mimic_y_offset = 0,
+    vertical_offset = 0,
+    horizontal_offset = 0,
+    point_radius = 7,
+    interval_solve,
+    interval_order;
+
+$(window).on("load",function(){
+    $("#loading").hide();
+    load_parameters();
+    let up_mouseButtonDown = false,
+        down_mouseButtonDown = false,
+        right_mouseButtonDown = false,
+        left_mouseButtonDown = false;
+    $("#up").on({
+        'mousedown': () => up_mouseButtonDown = true,
+        'mouseup': () => up_mouseButtonDown = false,
+        'touchstart': () => up_mouseButtonDown = true,
+        'touchend': () => up_mouseButtonDown = false
+    });
+    $("#down").on({
+        'mousedown': () => down_mouseButtonDown = true,
+        'mouseup': () => down_mouseButtonDown = false,
+        'touchstart': () => down_mouseButtonDown = true,
+        'touchend': () => down_mouseButtonDown = false
+    });
+    $("#right").on({
+        'mousedown': () => right_mouseButtonDown = true,
+        'mouseup': () => right_mouseButtonDown = false,
+        'touchstart': () => right_mouseButtonDown = true,
+        'touchend': () => right_mouseButtonDown = false
+    });
+    $("#left").on({
+        'mousedown': () => left_mouseButtonDown = true,
+        'mouseup': () => left_mouseButtonDown = false,
+        'touchstart': () => left_mouseButtonDown = true,
+        'touchend': () => left_mouseButtonDown = false
+    });
+
+    function animate(){
+        if (up_mouseButtonDown) {
+            let y = Number($("#mimic_offset_y").val());
+            if (!isNaN(y)) {
+                setTimeout(function () {
+                    $("#mimic_offset_y").val(y - 1);
+                    fix_points();
+                }, 50)
+            }
+        }
+        if (down_mouseButtonDown) {
+            let y = Number($("#mimic_offset_y").val());
+            if (!isNaN(y)){
+                setTimeout(function () {
+                    $("#mimic_offset_y").val(y + 1);
+                    fix_points();
+                }, 50)
+            }
+        }
+        if (right_mouseButtonDown) {
+            let x = Number($("#mimic_offset_x").val());
+            if (!isNaN(x)){
+                setTimeout(function () {
+                    $("#mimic_offset_x").val(x + 1);
+                    fix_points();
+                }, 50)
+            }
+        }
+        if (left_mouseButtonDown) {
+                let x = Number($("#mimic_offset_x").val());
+                if (!isNaN(x)){
+                    setTimeout(function () {
+                        $("#mimic_offset_x").val(x - 1);
+                        fix_points();
+                    }, 50)
+                }
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+    let solve = $("#solve");
+    solve.on('click', function () {
+        Cookies.set('mimic_x_offset', mimic_x_offset);
+        Cookies.set('mimic_y_offset', mimic_y_offset);
+        Cookies.set('vertical_offset', vertical_offset);
+        Cookies.set('horizontal_offset', horizontal_offset);
+        Cookies.set('point_radius', point_radius);
+        solve[0].disabled = true;
+        solve.hide();
+        $("#loading").show();
+        $.ajax({
+          type: "POST",
+          url: "/solve",
+          data: {'mimic_offset_x': $("#mimic_offset_x").val(),
+              'mimic_offset_y': $("#mimic_offset_y").val(),
+              'vertical_offset': $("#vertical_offset").val(),
+              'horizontal_offset': $("#horizontal_offset").val(),
+              'specific_benefit': $("#specific_benefit").val(),
+              'get_order': $("#get_order")[0].checked},
+          dataType: "json",
+          encode: true,
+        });
+        interval_solve = setInterval(check_solve_result, 15000);
+    });
+});
+
+function drawImage(){
+        let canvas = $("#canvas")[0],
+            ctx = canvas.getContext("2d"),
+            img = new Image();
+        img.onload = function(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, image_width, image_height);
+            for (const point of points){
+                ctx.beginPath();
+                let point_x = point[0] + mimic_x_offset + point[3]*horizontal_offset,
+                    point_y = point[1] + mimic_y_offset + point[2]*vertical_offset;
+                ctx.arc(point_x, point_y, point_radius, 0, 2 * Math.PI, false);
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+            }
+            $("#mimic_offset_x").val(mimic_x_offset);
+            $("#mimic_offset_y").val(mimic_y_offset);
+            $("#vertical_offset").val(vertical_offset);
+            $("#horizontal_offset").val(horizontal_offset);
+            $("#point_radius").val(point_radius);
+        };
+        img.src = filename;
+    }
+function fix_points(){
+    let mimic_x_offset_input = $("#mimic_offset_x").val(),
+        mimic_y_offset_input = $("#mimic_offset_y").val(),
+        vertical_offset_input = $("#vertical_offset").val(),
+        horizontal_offset_input = $("#horizontal_offset").val(),
+        point_radius_input = $("#point_radius").val();
+
+    if (!isNaN(mimic_x_offset_input) && !isNaN(mimic_y_offset_input) && !isNaN(vertical_offset_input)
+        && !isNaN(horizontal_offset_input) && !isNaN(point_radius_input)){
+        mimic_x_offset = Number(mimic_x_offset_input);
+        mimic_y_offset = Number(mimic_y_offset_input);
+        vertical_offset = Number(vertical_offset_input);
+        horizontal_offset = Number(horizontal_offset_input);
+        point_radius = Number(point_radius_input);
+        drawImage();
+    }
+}
+function load_parameters(){
+    let x_cookie = Cookies.get('mimic_x_offset'),
+        y_cookie = Cookies.get('mimic_y_offset'),
+        vertical_cookie = Cookies.get('vertical_offset'),
+        horizontal_cookie = Cookies.get('horizontal_offset'),
+        radius_cookie = Cookies.get('point_radius');
+    if (x_cookie && y_cookie && vertical_cookie && horizontal_cookie && radius_cookie) {
+        mimic_x_offset = Number(x_cookie);
+        mimic_y_offset = Number(y_cookie);
+        vertical_offset = Number(vertical_cookie);
+        horizontal_offset = Number(horizontal_cookie);
+        point_radius = Number(radius_cookie);
+    }
+    drawImage();
+}
+function reset_parameters(){
+    mimic_x_offset = 0;
+    mimic_y_offset = 0;
+    vertical_offset = 0;
+    horizontal_offset = 0;
+    point_radius = 7;
+    drawImage();
+}
+function check_solve_result(){
+    $.ajax({
+          type: "POST",
+          url: "/check_solve_result",
+          data: {},
+          dataType: "json",
+          encode: true,
+        }).done(function(data){
+            if (data['solve_status'] === true){
+                clearInterval(interval_solve);
+                if ($("#get_order")[0].checked)
+                    interval_order = setInterval(check_order_result, 15000);
+                else
+                    $('html').html(data['html']);
+            }
+        });
+}
+function check_order_result(){
+    $.ajax({
+          type: "POST",
+          url: "/check_order_result",
+          data: {},
+          dataType: "json",
+          encode: true,
+        }).done(function(data){
+            if (data['order_status'] === true){
+                clearInterval(interval_order);
+                $('html').html(data['html']);
+            }
+        });
+}

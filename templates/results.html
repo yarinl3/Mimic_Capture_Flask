@@ -2,23 +2,14 @@
 
 {% block head %}
 <title>Results</title>
-    <script src="/static/js/NoSleep.js"></script>
     <script type="text/javascript">
-    var noSleep = new NoSleep();
-    window.onload = () => {
-        var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-        if (width > 500){
-            document.getElementById("result-div").style.width = "500px";
-        }
-        else{
-            document.getElementById("result-div").style.width = (width-20).toString() + "px";
-        }
-        let get_order = document.getElementById("get_order");
-        get_order.addEventListener('click', function enableNoSleep() {
-            document.removeEventListener('click', enableNoSleep, false);
-            noSleep.enable();
-        }, false);
-    };
+    $(window).on("load", function(){
+        let width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+        if (width > 500)
+            $("#result-div").width("500px");
+        else
+            $("#result-div").width((width-20).toString() + "px");
+    });
     </script>
 {% endblock %}
 {% block body %}

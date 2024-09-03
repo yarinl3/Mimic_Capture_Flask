@@ -1,242 +1,120 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Fix Points</title>
-<script src="/static/js/NoSleep.js"></script>
-<script type="text/javascript">
-    let noSleep = new NoSleep();
-    let mimic_x_offset = 0,
-        mimic_y_offset = 0,
-        vertical_offset = 0,
-        horizontal_offset = 0,
-        point_radius = 7,
-        points = [];
-    {% for point in points %}
-    points.push([{{ point[0] }}, {{ point[1] }}, {{ point[2] }}, {{ point[3] }}]);
-    {% endfor %}
-    let mimic_point = points[points.length-1];
-    function drawImage(){
-        let canvas = document.getElementById("canvas"),
-            ctx = canvas.getContext("2d"),
-            img = new Image();
-        img.onload = function(){
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, {{ image_width }}, {{ image_height }});
-            for (const point of points){
-                ctx.beginPath();
-                let point_x = point[0] + mimic_x_offset + point[3]*horizontal_offset,
-                    point_y = point[1] + mimic_y_offset + point[2]*vertical_offset;
-                ctx.arc(point_x, point_y, point_radius, 0, 2 * Math.PI, false);
-                ctx.fillStyle = 'blue';
-                ctx.fill();
-            }
-            document.getElementById("mimic_offset_x").value = mimic_x_offset;
-            document.getElementById("mimic_offset_y").value = mimic_y_offset;
-            document.getElementById("vertical_offset").value = vertical_offset;
-            document.getElementById("horizontal_offset").value = horizontal_offset;
-            document.getElementById("point_radius").value = point_radius;
-
-
-        };
-        img.src = "{{ filename }}";
-    }
-
-    function fix_points(){
-        let mimic_x_offset_input = document.getElementById("mimic_offset_x").value,
-            mimic_y_offset_input = document.getElementById("mimic_offset_y").value,
-            vertical_offset_input = document.getElementById("vertical_offset").value,
-            horizontal_offset_input = document.getElementById("horizontal_offset").value,
-            point_radius_input = document.getElementById("point_radius").value;
-        if (!isNaN(mimic_x_offset_input) && !isNaN(mimic_y_offset_input) && !isNaN(vertical_offset_input)
-            && !isNaN(horizontal_offset_input) && !isNaN(point_radius_input)){
-            mimic_x_offset = Number(mimic_x_offset_input);
-            mimic_y_offset = Number(mimic_y_offset_input);
-            vertical_offset = Number(vertical_offset_input);
-            horizontal_offset = Number(horizontal_offset_input);
-            point_radius = Number(point_radius_input);
-            drawImage();
-        }
-    }
-    document.addEventListener("DOMContentLoaded", function(){
-        load_parameters();
-        let up =  document.getElementById('up'),
-        down =  document.getElementById('down'),
-        right =  document.getElementById('right'),
-        left =  document.getElementById('left');
-        let up_mouseButtonDown = false,
-            down_mouseButtonDown = false,
-            right_mouseButtonDown = false,
-            left_mouseButtonDown = false;
-
-        up.addEventListener('mousedown', () => up_mouseButtonDown = true);
-        up.addEventListener('mouseup', () => up_mouseButtonDown = false);
-        up.addEventListener('touchstart', () => up_mouseButtonDown = true);
-        up.addEventListener('touchend', () => up_mouseButtonDown = false);
-        down.addEventListener('mousedown', () => down_mouseButtonDown = true);
-        down.addEventListener('mouseup', () => down_mouseButtonDown = false);
-        down.addEventListener('touchstart', () => down_mouseButtonDown = true);
-        down.addEventListener('touchend', () => down_mouseButtonDown = false);
-        right.addEventListener('mousedown', () => right_mouseButtonDown = true);
-        right.addEventListener('mouseup', () => right_mouseButtonDown = false);
-        right.addEventListener('touchstart', () => right_mouseButtonDown = true);
-        right.addEventListener('touchend', () => right_mouseButtonDown = false);
-        left.addEventListener('mousedown', () => left_mouseButtonDown = true);
-        left.addEventListener('mouseup', () => left_mouseButtonDown = false);
-        left.addEventListener('touchstart', () => left_mouseButtonDown = true);
-        left.addEventListener('touchend', () => left_mouseButtonDown = false);
-
-
-        function up_animate(){
-            if (up_mouseButtonDown) {
-                let y = Number(document.getElementById("mimic_offset_y").value);
-                if (!isNaN(y)) {
-                    setTimeout(function () {
-                        document.getElementById("mimic_offset_y").value = y - 1;
-                        fix_points();
-                    }, 50)
-                }
-            }
-            requestAnimationFrame(up_animate);
-        }
-
-        function down_animate(){
-            if (down_mouseButtonDown) {
-                let y = Number(document.getElementById("mimic_offset_y").value);
-                if (!isNaN(y)){
-                    setTimeout(function () {
-                        document.getElementById("mimic_offset_y").value = y + 1;
-                        fix_points();
-                    }, 50)
-                }
-            }
-            requestAnimationFrame(down_animate);
-        }
-
-        function right_animate(){
-            if (right_mouseButtonDown) {
-                let x = Number(document.getElementById("mimic_offset_x").value);
-                if (!isNaN(x)){
-                    setTimeout(function () {
-                        document.getElementById("mimic_offset_x").value = x + 1;
-                        fix_points();
-                    }, 50)
-                }
-            }
-            requestAnimationFrame(right_animate);
-        }
-
-        function left_animate(){
-            if (left_mouseButtonDown) {
-                    let x = Number(document.getElementById("mimic_offset_x").value);
-                    if (!isNaN(x)){
-                        setTimeout(function () {
-                            document.getElementById("mimic_offset_x").value = x - 1;
-                            fix_points();
-                        }, 50)
-                    }
-            }
-            requestAnimationFrame(left_animate);
-        }
-        up_animate();
-        down_animate();
-        right_animate();
-        left_animate();
-
-        let solve = document.getElementById("solve");
-        solve.addEventListener('click', function enableNoSleep() {
-            document.cookie = `mimic_x_offset=${mimic_x_offset}`;
-            document.cookie = `mimic_y_offset=${mimic_y_offset}`;
-            document.cookie = `vertical_offset=${vertical_offset}`;
-            document.cookie = `horizontal_offset=${horizontal_offset}`;
-            document.cookie = `point_radius=${point_radius}`;
-            document.removeEventListener('click', enableNoSleep, false);
-            noSleep.enable();
-        }, false);
-    }, false);
-    function load_parameters(){
-        let cookies = decodeURIComponent(document.cookie);
-        for (let cookie of cookies.split(';')){
-            while (cookie.charAt(0) === ' ')
-                cookie = cookie.substring(1);
-            let elements = cookie.split('=');
-            if (elements.length === 2){
-                if (elements[0] === "mimic_x_offset")
-                    mimic_x_offset = Number(elements[1]);
-                if (elements[0] === "mimic_y_offset")
-                    mimic_y_offset = Number(elements[1]);
-                if (elements[0] === "vertical_offset")
-                    vertical_offset = Number(elements[1]);
-                if (elements[0] === "horizontal_offset")
-                    horizontal_offset = Number(elements[1]);
-                if (elements[0] === "point_radius")
-                    point_radius = Number(elements[1]);
-            }
-        }
-        drawImage();
-    }
-    function reset_parameters(){
-        mimic_x_offset = 0;
-        mimic_y_offset = 0;
-        vertical_offset = 0;
-        horizontal_offset = 0;
-        point_radius = 7;
-        drawImage();
-    }
-</script>
+    <title>Fix Points</title>
+    <script type="text/javascript">
+        let points = {{ points }},
+            image_width = {{ image_width }},
+            image_height = {{ image_height }},
+            filename = "{{ filename }}";
+    </script>
+    <script src="/static/js/fix_points.js"></script>
+    <script src="/static/js/results.js"></script>
 {% endblock %}
 {% block body %}
-    <pre style="margin-top: 20px;">
+    <pre id="bootstrap-overrides" style="margin-top: 20px; white-space: wrap;">
         {% if success == True %}
-            Please fix points:
+            <h5 class="ms-5">Please fix points:</h5>
             <canvas id="canvas" width="{{ image_width }}px" height="{{ image_height }}px"></canvas>
-            <form method = "post"><table class="table1">
+            <form method="post">
+                <table class="table table-borderless" style="width: 100px; height: 100px; margin:auto">
                     <tbody>
                         <tr>
                             <td></td>
-                            <td><input type="button" id="up" value="↑" /></td>
+                            <td>
+                                <button type="button" class="btn btn-secondary" id="up">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"></path>
+                                    </svg>
+                                </button>
+                            </td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td><input type="button" id="left" value="←" /></td>
+                            <td>
+                                <button type="button" class="btn btn-secondary" id="left">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"></path>
+                                    </svg>
+                                </button>
+                            </td>
                             <td></td>
-                            <td><input type="button" id="right" value="→" /></td>
+                            <td>
+                                <button type="button" class="btn btn-secondary" id="right">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path>
+                                    </svg>
+                                </button>
+                            </td>
                         </tr>
                         <tr>
                             <td></td>
-                            <td><input type="button" id="down" value="↓" /></td>
+                            <td>
+                                <button type="button" class="btn btn-secondary" id="down">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1"></path>
+                                    </svg>
+                                </button>
+                            </td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
-                <label for="mimic_offset_x">Mimic point offset X: </label>
-                <input id="mimic_offset_x" name="mimic_offset_x" />
-                <br>
-                <label for="mimic_offset_y">Mimic point offset Y: </label>
-                <input id="mimic_offset_y" name="mimic_offset_y"/>
-                <br>
-                <label for="vertical_offset">Vertical offset: </label>
-                <input id="vertical_offset" name="vertical_offset"/>
-                <br>
-                <label for="horizontal_offset">Horizontal offset: </label>
-                <input id="horizontal_offset" name="horizontal_offset"/>
-                <br>
-                <label for="point_radius">Point radius: </label>
-                <input id="point_radius" />
-                <br>
-                <input type="button" onclick="fix_points()" value="Change">
-                <br>
-                <input type="button" onclick="reset_parameters()" value="Reset parameters">
-                <br>
-                <label for="specific_benefit">Specific benefit: </label>
-                <input id="specific_benefit" name="specific_benefit" value="" />
-                <br>
-                <button type="submit" id="solve" formaction="/solve">Solve</button><button type="submit" style="margin-left: 25%" id="play" formaction="/play">Play</button>
-                <br>
-                <div style="margin-left: 20%"><input type="checkbox" name="get_order"> Solve + Get order (May take some time)</div>
+                <div class="mb-3 mt-3 row me-0">
+                    <label for="mimic_offset_x" class="col-sm-6 col-form-label">Mimic point offset X: </label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="mimic_offset_x" name="mimic_offset_x">
+                    </div>
+                </div>
+                <div class="mb-3 row me-0">
+                    <label for="mimic_offset_y" class="col-sm-6 col-form-label">Mimic point offset Y: </label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="mimic_offset_y" name="mimic_offset_y">
+                    </div>
+                </div>
+                <div class="mb-3 row me-0">
+                    <label for="vertical_offset" class="col-sm-6 col-form-label">Vertical offset: </label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="vertical_offset" name="vertical_offset">
+                    </div>
+                </div>
+                <div class="mb-3 row me-0">
+                    <label for="horizontal_offset" class="col-sm-6 col-form-label">Horizontal offset: </label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="horizontal_offset" name="horizontal_offset">
+                    </div>
+                </div>
+                <div class="mb-3 row me-0">
+                    <label for="point_radius" class="col-sm-6 col-form-label">Point radius: </label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="point_radius">
+                    </div>
+                </div>
+
+                <input class="btn btn-secondary mb-3 me-5" type="button" onclick="fix_points()" value="Change">
+                <input class="btn btn-secondary mb-3 ms-5" type="button" onclick="reset_parameters()" value="Reset parameters">
+                <div class="mb-3 row me-0">
+                    <label for="specific_benefit" class="col-sm-6 col-form-label">Specific benefit: </label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="specific_benefit">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary mb-4" type="button" id="loading" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Loading...
+                </button>
+                <input type="hidden" id="user_id" name="user_id" value="{{ user_id }}" />
+                <button id="solve" class="btn btn-primary mb-4">Solve</button>
+                <button type="submit" class="btn btn-success mb-4" style="margin-left: 25%" id="play" formaction="/play">Play</button>
+
+                <div style="text-align: center">
+                    <input type="checkbox" id="get_order"> <span>Solve + Get order (May take some time)</span>
+                </div>
             </form></pre>
         {% else %}
-            File upload failed.
-            Please make sure the file is an image of type: png / jpg / jpeg / webp.
+            <div class="alert alert-danger" role="alert">
+                File upload failed.
+                Please make sure the file is an image of type: png / jpg / jpeg / webp.
+            </div>
         {% endif %}
-    <input style="margin-top: 50px; margin-left: 35%" type="button" onclick="window.location = '/';" value="Back To Home Page" /><br>
 {% endblock %}

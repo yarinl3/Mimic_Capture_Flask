@@ -3,18 +3,22 @@
 {% block head %}
 <title>Upload Screenshot</title>
     <script type="text/javascript">
-        window.onload = () => {
-            var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-            document.getElementById("screen-width").value = width;
-        };
+        $(window).on("load", function (){
+            $("#screen-width")[0].value = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+        });
     </script>
 {% endblock %}
 {% block body %}
-    <h1>Upload screenshot</h1>
-    <form action = "/fix_points" method = "post" enctype="multipart/form-data">
+    <div class="mt-5 mb-5">
+        <h1>Upload screenshot</h1>
+    </div>
+
+    <form action = "/fix_points" method="post" enctype="multipart/form-data">
         <input type="hidden" id="screen-width" name="screen-width" value="" />
-        <input type="file" style="padding-bottom:20px;" name="file" />
-        <br>
-        <input type="submit" value="Upload" />
+        <div class="mt-5" style="text-align: center;">
+            <input class="form-control mt-5" name="file" type="file">
+            <input class="btn btn-primary mt-3" style="--bs-btn-bg: #0dcaf0; --bs-btn-border-color: #0dcaf0;" type="submit" value="Upload" />
+        </div>
+
     </form>
 {% endblock %}

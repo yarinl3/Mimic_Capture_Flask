@@ -1,40 +1,31 @@
-{% extends 'base.html' %}
 
-{% block head %}
-<title>Results</title>
-    <script type="text/javascript">
-    $(window).on("load", function(){
-        let width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-        if (width > 500)
-            $("#result-div").width("500px");
-        else
-            $("#result-div").width((width-20).toString() + "px");
-    });
-    </script>
-{% endblock %}
-{% block body %}
-    {% if blocks_sets|length == 0 %}
-        <h1>No Results</h1>
-    {% else %}
-        <h1>Results:</h1>
-        <h2>The maximum benefit is {{ benefit }}.</h2>
-        {% for params in blocks_sets %}
-            {% set image_path = params[0] %}
-            {% set blocks_set = params[1] %}
-            <div class="result-div" id="result-div">
-                <img src="{{ image_path }}" alt="" style="width:400px;">
+<script type="text/javascript">
+    let blocks_sets_length = {{ blocks_sets|length }};
+</script>
+{% if blocks_sets|length == 0 %}
+    <h1>No Results</h1>
+{% else %}
+    <h1>Results:</h1>
+    <h2>The maximum benefit is {{ benefit }}.</h2>
+    <input type="hidden" id="user_id" value="{{ user_id }}" />
+    <input type="hidden" id="benefit" value="{{ benefit }}" />
+    {% for params in blocks_sets %}
+        {% set image_path = params[0] %}
+        {% set blocks_set = params[1] %}
+        <div class="result-div" id="result-div">
+            <img src="{{ image_path }}" alt="" id="image-{{ loop.index0 }}" style="width:400px;">
+            <br>
+            <div style="margin-bottom:40px; border-bottom: solid;">
+                <label>Blocks to remove: {{ blocks_set }}</label>
                 <br>
-                <div style="margin-bottom:40px; border-bottom: solid;">
-                    <form method="post" action="/get_order" target="_blank" style="margin-top:20px;margin-bottom: 20px">
-                        <label>Blocks to remove: {{ blocks_set }}</label>
-                        <br>
-                        <input type="hidden" name="blocks-set-number" value="{{ loop.index0 }}" />
-                        <input type="hidden" name="benefit" value="{{ benefit }}" />
-                        <input style="margin-top:20px" type="submit" id="get_order" value="Get Order" />
-                    </form>
-                </div>
+                <button class="btn btn-primary mb-4" type="button" id="loading-{{ loop.index0 }}" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Loading...
+                </button>
+                <button class="btn btn-primary" style="margin-top:20px" id="get_order-{{ loop.index0 }}">Get Order</button>
             </div>
-        {% endfor %}
-    {% endif %}
-    <input style="margin-top: 50px; margin-left: 35%" type="button" onclick="window.location = '/';" value="Back To Home Page" /><br>
-{% endblock %}
+        </div>
+    {% endfor %}
+{% endif %}
+<div class="mt-5" style="text-align: center;">
+    <button class="btn btn-info" style="--bs-btn-color:#fff" onclick="window.location = '/';">Back To Home Page</button>
+</div>

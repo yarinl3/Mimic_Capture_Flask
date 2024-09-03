@@ -7,7 +7,7 @@ import numpy as np
 COLS = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6}
 REV_COL = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G'}
 MODES = {'DEBUG': 0, 'PLAY': 1, 'SOLVE': 2, 'GET_ORDER':3}
-horizontal_fix, vertical_fix, width_fix, height_fix = 0, 0, 0, 30
+horizontal_fix, vertical_fix, width_fix, height_fix = 0, 0, 0, 0
 RELATIVE_ON_SCREEN_POSITION = 0.6015
 RELATIVE_ON_MIMIC_POSITION = 12 / 1225
 CIRCLE_RADIUS_RATIO = 10 / 566
@@ -265,7 +265,7 @@ def play_game_web(points, player_move, frog_indexes):
     return None, points, board.frog
 
 
-def solve(points, web_mode=False, specific_benefit=None):
+def solve(points, filename=None, web_mode=False, specific_benefit=None):
     maximum_benefit = 0
     web_messages = []
     benefit_list = []
@@ -340,7 +340,10 @@ def solve(points, web_mode=False, specific_benefit=None):
                     web_messages.append(blocks_set)
                 else:
                     print(f'Blocks to remove: {blocks_set}')
-                save_solution_as_image(counter, points, item[1])
+                if filename:
+                    save_solution_as_image(counter, points, item[1], screenshot=filename)
+                else:
+                    save_solution_as_image(counter, points, item[1])
                 counter += 1
     return web_messages
 
@@ -594,7 +597,7 @@ def remove_necessary_blocks(board, blocks_to_remove):
         else:
             return removed_blocks
 
-def save_order_as_image(order, points, filename, ratio):
+def save_order_as_image(order, points, filename, blocks_set_number):
     img_rgb = cv2.imread(filename)
     if order is None:
         order = []
@@ -617,7 +620,7 @@ def save_order_as_image(order, points, filename, ratio):
         cv2.putText(img_rgb, str(block_number + 1), (int(pixel_j-points_horizontal_distance),
                                                      int(pixel_i+points_vertical_distance)), cv2.FONT_HERSHEY_SIMPLEX,
                     font_scale,(255, 0, 0), thickness)
-    image_name = f'{filename} order.png'
+    image_name = f'{filename} order {blocks_set_number}.png'
     cv2.imwrite(image_name, img_rgb)
     return image_name
 

@@ -9,6 +9,7 @@
             filename = "{{ filename }}";
     </script>
     <script src="/static/js/fix_points.js"></script>
+    <script src="/static/js/results.js"></script>
 {% endblock %}
 {% block body %}
     <pre id="bootstrap-overrides" style="margin-top: 20px; white-space: wrap;">
@@ -102,7 +103,7 @@
                 <button class="btn btn-primary mb-4" type="button" id="loading" disabled>
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Loading...
                 </button>
-
+                <input type="hidden" id="user_id" name="user_id" value="{{ user_id }}" />
                 <button id="solve" class="btn btn-primary mb-4">Solve</button>
                 <button type="submit" class="btn btn-success mb-4" style="margin-left: 25%" id="play" formaction="/play">Play</button>
 
@@ -116,7 +117,4 @@
                 Please make sure the file is an image of type: png / jpg / jpeg / webp.
             </div>
         {% endif %}
-    <div class="mt-5" style="text-align: center;">
-        <button class="btn btn-info" style="--bs-btn-color:#fff" onclick="window.location = '/';">Back To Home Page</button>
-    </div>
 {% endblock %}

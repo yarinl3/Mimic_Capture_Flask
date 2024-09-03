@@ -89,16 +89,22 @@ $(window).on("load",function(){
         solve.hide();
         $("#loading").show();
         $.ajax({
-          type: "POST",
-          url: "/solve",
-          data: {'mimic_offset_x': $("#mimic_offset_x").val(),
-              'mimic_offset_y': $("#mimic_offset_y").val(),
-              'vertical_offset': $("#vertical_offset").val(),
-              'horizontal_offset': $("#horizontal_offset").val(),
-              'specific_benefit': $("#specific_benefit").val(),
-              'get_order': $("#get_order")[0].checked},
-          dataType: "json",
-          encode: true,
+            type: "POST",
+            url: "/solve",
+            data: {'mimic_offset_x': $("#mimic_offset_x").val(),
+                'mimic_offset_y': $("#mimic_offset_y").val(),
+                'vertical_offset': $("#vertical_offset").val(),
+                'horizontal_offset': $("#horizontal_offset").val(),
+                'specific_benefit': $("#specific_benefit").val(),
+                'get_order': $("#get_order")[0].checked,
+                'user_id': $("#user_id").val()},
+            dataType: "json",
+            encode: true,
+            complete: function(xhr, textStatus) {
+                if (xhr.status !== 200) {
+                    $("#error_button").trigger("click");
+                }
+            }
         });
         interval_solve = setInterval(check_solve_result, 15000);
     });
@@ -169,32 +175,46 @@ function reset_parameters(){
 }
 function check_solve_result(){
     $.ajax({
-          type: "POST",
-          url: "/check_solve_result",
-          data: {},
-          dataType: "json",
-          encode: true,
-        }).done(function(data){
-            if (data['solve_status'] === true){
+        type: "POST",
+        url: "/check_solve_result",
+        data: {'user_id': $("#user_id").val()},
+        dataType: "json",
+        encode: true,
+        complete: function(xhr, textStatus) {
+            if (xhr.status !== 200) {
                 clearInterval(interval_solve);
-                if ($("#get_order")[0].checked)
-                    interval_order = setInterval(check_order_result, 15000);
-                else
-                    $('html').html(data['html']);
+                $("#error_button").trigger("click");
             }
-        });
+        }
+    }).done(function(data){
+        if (data['solve_status'] === true){
+            clearInterval(interval_solve);
+            if ($("#get_order")[0].checked)
+                interval_order = setInterval(check_order_result, 15000);
+            else {
+                $('body').html(data['html']);
+                init_results();
+            }
+        }
+    });
 }
 function check_order_result(){
     $.ajax({
-          type: "POST",
-          url: "/check_order_result",
-          data: {},
-          dataType: "json",
-          encode: true,
-        }).done(function(data){
-            if (data['order_status'] === true){
+        type: "POST",
+        url: "/check_order_result",
+        data: {'user_id': $("#user_id").val()},
+        dataType: "json",
+        encode: true,
+        complete: function(xhr, textStatus) {
+            if (xhr.status !== 200) {
                 clearInterval(interval_order);
-                $('html').html(data['html']);
+                $("#error_button").trigger("click");
             }
-        });
+        }
+    }).done(function(data){
+        if (data['order_status'] === true){
+            clearInterval(interval_order);
+            $('html').html(data['html']);
+        }
+    });
 }

@@ -12,5 +12,28 @@
 </head>
 <body>
 {% block body %}{% endblock %}
+    <div class="mt-5" style="text-align: center;">
+        <button class="btn btn-info" style="--bs-btn-color:#fff" onclick="window.location = '/';">Back To Home Page</button>
+    </div>
+<!-- Error Modal -->
+<button type="button" id="error_button" hidden="" data-bs-toggle="modal" data-bs-target="#Error">
+</button>
+<div class="modal fade" id="Error" tabindex="-1" aria-labelledby="ErrorLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="text-align: center">
+        <h1 class="modal-title fs-4" id="ErrorLabel">Error</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          An unexpected error occurred.<br>
+          Please report it with the picture of the board to <a href="mailto:yarinl330@gmail.com">yarinl330@gmail.com</a>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

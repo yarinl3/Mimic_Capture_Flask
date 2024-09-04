@@ -16,16 +16,14 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 5. Nevigate to the extract folder with 'cd' command.<br>
 <img width="343" alt="image" src="https://github.com/user-attachments/assets/4aba4cf9-7166-456b-b156-f59fd698ab9c">
 <br><br>
-6. Create a new environment with the command: virtualenv venv<br>
+6. Create a new environment with the command: python -m venv myenv<br>
 <img width="569" alt="image" src="https://github.com/user-attachments/assets/2d9c9e93-ae9d-458f-99ea-5056ee2d9607">
 <br><br>
 7. Activate the environment with the command:<br>
 Mac / Ubuntu:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;source venv/bin/activate<br>
+&nbsp;&nbsp;&nbsp;&nbsp;source myenv/bin/activate<br>
 Windows:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;.\venv\Scripts\activate<br>
-&nbsp;&nbsp;&nbsp;&nbsp;If not works try:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;.\venv\bin\activate<br>
+&nbsp;&nbsp;&nbsp;&nbsp;myenv\Scripts\activate<br>
 <img width="378" alt="image" src="https://github.com/user-attachments/assets/dfa54877-b436-4302-8b4b-f5c5f5adc569">
 <br><br>
 8. Install Mimic dependencies with the command: python -m pip install -r requirements.txt<br>

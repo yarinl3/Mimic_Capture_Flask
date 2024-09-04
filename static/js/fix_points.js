@@ -9,6 +9,7 @@ let mimic_x_offset = 0,
 
 $(window).on("load",function(){
     $("#loading").hide();
+    $("#solve_progressbar_container").hide();
     load_parameters();
     let up_mouseButtonDown = false,
         down_mouseButtonDown = false,
@@ -90,6 +91,7 @@ $(window).on("load",function(){
         solve[0].disabled = true;
         solve.hide();
         $("#loading").show();
+        $("#solve_progressbar_container").show();
         $.ajax({
             type: "POST",
             url: "/solve",
@@ -202,6 +204,11 @@ function check_solve_result(){
                 $('body').html(data['html']);
                 init_results();
             }
+        }else{
+            let progress = Math.floor(100 * Number(data['counter'])/Number(data['combinations'])),
+                solve_progressbar_blue = $("#solve_progressbar_blue");
+            solve_progressbar_blue.width(`${progress}%`);
+            solve_progressbar_blue.text(`${progress}%`);
         }
     });
 }

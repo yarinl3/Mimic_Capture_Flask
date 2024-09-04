@@ -1,4 +1,4 @@
-from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as_image, play_game_web, Board
+from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as_image, play_game_web, Board, users_mimic
 from flask import Flask, render_template, request, redirect
 import os, time, cv2, shutil, threading
 
@@ -107,7 +107,7 @@ def check_solve_result():
             return {'solve_status': True,
                     'html': render_template("results.html", blocks_sets=users[user_id][BLOCKS_SETS],
                                             benefit=benefit, user_id=user_id)}
-        return {'solve_status': False}
+        return {'solve_status': False, 'counter': users_mimic[user_id][1], 'combinations': users_mimic[user_id][0]}
     return redirect('/')
 
 
@@ -249,7 +249,7 @@ def remove_old_files():
 
 def thread_solve(user_id, specific_benefit):
     users[user_id][SOLVE_RESULT].append(solve(users[user_id][POINTS], users[user_id][FILENAME],
-                                              web_mode=True, specific_benefit=specific_benefit))
+                                              web_mode=True, specific_benefit=specific_benefit, user_id=user_id))
 
 
 def thread_get_first_order(messages, user_id):

@@ -122,6 +122,9 @@
                     <input type="checkbox" id="get_order"> <span>Solve + Get order (May take some time)</span>
                 </div>
             </form></pre>
+            <div class="progress" role="progressbar" aria-label="solve-progressbar" id="solve_progressbar_container" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" style="width: 1%" id="solve_progressbar_blue">1%</div>
+            </div>
         {% else %}
             <div class="alert alert-danger" role="alert">
                 File upload failed.

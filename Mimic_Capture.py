@@ -17,6 +17,7 @@ NUMBER_OF_BLOCKS_TO_REMOVE = 10
 SAMPLE_RADIUS = 10
 ROWS_NUMBER, COLS_NUMBER = 7, 7
 CPU_CORES = os.cpu_count() # use all cores or less
+users_mimic = dict()
 screenshot_path = ''
 is_win_flag = False
 
@@ -265,7 +266,8 @@ def play_game_web(points, player_move, frog_indexes):
     return None, points, board.frog
 
 
-def solve(points, filename=None, web_mode=False, specific_benefit=None):
+def solve(points, filename=None, web_mode=False, specific_benefit=None, user_id=None):
+    global users_mimic
     maximum_benefit = 0
     web_messages = []
     benefit_list = []
@@ -285,10 +287,11 @@ def solve(points, filename=None, web_mode=False, specific_benefit=None):
     # combination of one block from available blocks
     for i in range(1, 11):  # add all combinations of true blocks that not in the borders and not the frog block
         set_blocks_to_remove += list(itertools.combinations(available_blocks, i))
+    users_mimic[user_id] = [len(set_blocks_to_remove), 0]
     for blocks_to_remove in set_blocks_to_remove:
         board = Board()
         board.update_board(points, blocks_to_remove)
-
+        users_mimic[user_id][1] += 1 # count iterations for progress bar
         # Checks if one of the blocks to be removed cannot be reached when the other blocks are removed.
         # This causes a double solution.
         continue_flag = False

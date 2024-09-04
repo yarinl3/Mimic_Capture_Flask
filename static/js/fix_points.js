@@ -198,8 +198,14 @@ function check_solve_result(){
     }).done(function(data){
         if (data['solve_status'] === true){
             clearInterval(interval_solve);
-            if ($("#get_order")[0].checked)
+            let solve_progressbar_blue = $("#solve_progressbar_blue");
+            solve_progressbar_blue.width(`100%`);
+            solve_progressbar_blue.text(`100%`);
+            $("#solve_progressbar_container").after("<br><h3 id='sol_found'>All solutions have been found.</h3>");
+            if ($("#get_order")[0].checked){
+                $("#sol_found").after("<br><h3>Looking for a winning order...</h3>");
                 interval_order = setInterval(check_order_result, 15000);
+            }
             else {
                 $('body').html(data['html']);
                 init_results();

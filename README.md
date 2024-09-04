@@ -45,7 +45,8 @@ Web mode:<br>
 ## How to use
 ### Home Page
 Upload screenshot of the board (initial game state and only png / jpg / jpeg / webp)<br>
-<img width="386" alt="image" src="https://github.com/user-attachments/assets/cd06f574-28d0-4c01-837d-2353a3606109">
+<img width="550" alt="image" src="https://github.com/user-attachments/assets/8cc7b4fa-31f8-4fed-9c12-9e63d67c8862">
+
 
 ### Fix Points Page
 Different phones have different resolutions so you need to correct the position of the dots.<br>
@@ -56,16 +57,20 @@ The "Solve" button will display all results with maximum benefit.<br>
 If you want to skip it and get the order of the first result use the checkbox before click "Solve".<br>
 In case all the solutions have no winning order, you can look for solutions with smaller benefit using "Specific benefit" textbox before click "Solve".<br>
 <img width="519" alt="image" src="https://github.com/user-attachments/assets/34a67750-2cf2-4204-aa0a-fe58718e36ad">
-<img width="506" alt="image" src="https://github.com/user-attachments/assets/d8cfc2fe-dc5a-4cb5-863a-4707697823ba">
+<img width="464" alt="image" src="https://github.com/user-attachments/assets/5087d377-21eb-4a4f-a20c-d61bc0a618f3">
+
 
 ### Solutions Page
-<img width="471" alt="image" src="https://github.com/user-attachments/assets/e18246dd-fa25-4d35-8564-3401fe39bbd5">
+<img width="554" alt="image" src="https://github.com/user-attachments/assets/87a66da8-4828-4619-b490-d49f36b4e1c4">
+
 
 ### Get Order Page
-<img width="565" alt="image" src="https://github.com/user-attachments/assets/3cba2cf5-9d1f-4ead-900f-9766a372f410">
+<img width="595" alt="image" src="https://github.com/user-attachments/assets/c98aa966-ec35-436d-9271-929258af4e50">
+
 
 ### Play Page
-<img width="472" alt="image" src="https://github.com/user-attachments/assets/af486e66-4259-4e0c-aa39-1fb36f554af0">
+<img width="481" alt="image" src="https://github.com/user-attachments/assets/9e3dfaa7-a6e0-4ca7-86ef-5bcdf23af9ab">
+
 
 # IDE / Terminal
 Install as in web mode up to step 8 (inclusive).

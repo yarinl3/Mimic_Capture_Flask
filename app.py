@@ -72,7 +72,6 @@ def app_solve():
         update_offsets(request, user_id)
         specific_benefit = request.form['specific_benefit']
         users[user_id][START_TIME] = int(time.time())
-        users[user_id][CHECKBOX] = True if request.form['get_order'] == 'true' else False
         users[user_id][POINTS] = get_points(user_id)
         if specific_benefit and specific_benefit.isdigit() and int(specific_benefit) > 0:
             specific_benefit = int(specific_benefit)
@@ -92,10 +91,6 @@ def check_solve_result():
             filename = users[user_id][FILENAME]
             messages = users[user_id][SOLVE_RESULT][0]
             benefit = ''
-            if users[user_id][CHECKBOX]:
-                t2 = threading.Thread(target=thread_get_first_order, args=(messages, user_id))
-                t2.start()
-                return {'solve_status': True, 'order_status': False}
             if len(messages) > 1:
                 dir_name = f'{filename} Solutions'
                 for i, message in enumerate(messages):
@@ -110,6 +105,16 @@ def check_solve_result():
                     'html': render_template("results.html", blocks_sets=users[user_id][BLOCKS_SETS],
                                             benefit=benefit, user_id=user_id)}
         return {'solve_status': False, 'counter': users_mimic[user_id][1], 'combinations': users_mimic[user_id][0]}
+    return redirect('/')
+
+
+@app.route('/get_first_order', methods=['POST', 'GET'])
+def get_first_order():
+    if request.method == 'POST':
+        user_id = int(request.form['user_id'])
+        t2 = threading.Thread(target=thread_get_first_order, args=(users[user_id][SOLVE_RESULT][0], user_id))
+        t2.start()
+        return {'order_status': False}
     return redirect('/')
 
 

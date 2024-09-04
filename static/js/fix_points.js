@@ -5,11 +5,11 @@ let mimic_x_offset = 0,
     point_radius = 7,
     interval_solve,
     interval_order,
+    request_wait_time = 10 * 1000
     COLORS = {1: 'blue', 2: 'red', 3: 'green', 4: 'white'};
 
 $(window).on("load",function(){
-    $("#loading").hide();
-    $("#solve_progressbar_container").hide();
+    $("#progress_container").hide();
     load_parameters();
     let up_mouseButtonDown = false,
         down_mouseButtonDown = false,
@@ -80,40 +80,89 @@ $(window).on("load",function(){
         requestAnimationFrame(animate);
     }
     animate();
+
     let solve = $("#solve");
     solve.on('click', function () {
-        Cookies.set('mimic_x_offset', mimic_x_offset);
-        Cookies.set('mimic_y_offset', mimic_y_offset);
-        Cookies.set('vertical_offset', vertical_offset);
-        Cookies.set('horizontal_offset', horizontal_offset);
-        Cookies.set('point_radius', point_radius);
-        Cookies.set('points_color', $("#point_color").val());
         solve[0].disabled = true;
-        solve.hide();
-        $("#loading").show();
-        $("#solve_progressbar_container").show();
-        $.ajax({
-            type: "POST",
-            url: "/solve",
-            data: {'mimic_offset_x': $("#mimic_offset_x").val(),
-                'mimic_offset_y': $("#mimic_offset_y").val(),
-                'vertical_offset': $("#vertical_offset").val(),
-                'horizontal_offset': $("#horizontal_offset").val(),
-                'specific_benefit': $("#specific_benefit").val(),
-                'get_order': $("#get_order")[0].checked,
-                'user_id': $("#user_id").val()},
-            dataType: "json",
-            encode: true,
-            complete: function(xhr, textStatus) {
-                if (xhr.status !== 200) {
-                    $("#error_button").trigger("click");
-                }
-            }
-        });
-        interval_solve = setInterval(check_solve_result, 15000);
+        solve_get_order[0].disabled = true;
+        solve_request(false);
+    });
+
+    let solve_get_order = $("#solve_get_order");
+    solve_get_order.on('click', function () {
+        solve[0].disabled = true;
+        solve_get_order[0].disabled = true;
+        solve_request(true);
     });
 });
 
+function solve_request(get_order){
+    save_cookies();
+    $("#progress_container").show();
+    $.ajax({
+        type: "POST",
+        url: "/solve",
+        data: {'mimic_offset_x': $("#mimic_offset_x").val(),
+            'mimic_offset_y': $("#mimic_offset_y").val(),
+            'vertical_offset': $("#vertical_offset").val(),
+            'horizontal_offset': $("#horizontal_offset").val(),
+            'specific_benefit': $("#specific_benefit").val(),
+            'user_id': $("#user_id").val()},
+        dataType: "json",
+        encode: true,
+        complete: function(xhr, textStatus) {
+            if (xhr.status !== 200) {
+                $("#error_button").trigger("click");
+            }
+        }
+    });
+    interval_solve = setInterval(function(){check_solve_result(get_order)}, request_wait_time);
+}
+
+function check_solve_result(get_order){
+    $.ajax({
+        type: "POST",
+        url: "/check_solve_result",
+        data: {'user_id': $("#user_id").val()},
+        dataType: "json",
+        encode: true,
+        complete: function(xhr, textStatus) {
+            if (xhr.status !== 200) {
+                clearInterval(interval_solve);
+                $("#error_button").trigger("click");
+            }
+        }
+    }).done(function(data){
+        if (data['solve_status'] === true){
+            clearInterval(interval_solve);
+            if (get_order === false){
+                $('body').html(data['html']);
+                init_results();
+            }else{
+                let solve_progressbar_blue = $("#solve_progressbar_blue");
+                solve_progressbar_blue.width(`100%`);
+                solve_progressbar_blue.text(`100%`);
+                $("#progress_container").after(
+                                        "<br><h5 id='sol_found'>All solutions have been found.</h5><br>" +
+                                                "<h5>Looking for a winning order...</h5>");
+                get_first_order_request();
+            }
+        }else{
+            let progress = Math.floor(100 * Number(data['counter'])/Number(data['combinations'])),
+                solve_progressbar_blue = $("#solve_progressbar_blue");
+            solve_progressbar_blue.width(`${progress}%`);
+            solve_progressbar_blue.text(`${progress}%`);
+        }
+    });
+}
+function save_cookies(){
+    Cookies.set('mimic_x_offset', mimic_x_offset);
+    Cookies.set('mimic_y_offset', mimic_y_offset);
+    Cookies.set('vertical_offset', vertical_offset);
+    Cookies.set('horizontal_offset', horizontal_offset);
+    Cookies.set('point_radius', point_radius);
+    Cookies.set('points_color', $("#point_color").val());
+}
 function drawImage(){
         let canvas = $("#canvas")[0],
             ctx = canvas.getContext("2d"),
@@ -182,42 +231,23 @@ function reset_parameters(){
     point_radius = 7;
     drawImage();
 }
-function check_solve_result(){
+
+function get_first_order_request(){
     $.ajax({
         type: "POST",
-        url: "/check_solve_result",
+        url: "/get_first_order",
         data: {'user_id': $("#user_id").val()},
         dataType: "json",
         encode: true,
         complete: function(xhr, textStatus) {
             if (xhr.status !== 200) {
-                clearInterval(interval_solve);
                 $("#error_button").trigger("click");
             }
         }
-    }).done(function(data){
-        if (data['solve_status'] === true){
-            clearInterval(interval_solve);
-            let solve_progressbar_blue = $("#solve_progressbar_blue");
-            solve_progressbar_blue.width(`100%`);
-            solve_progressbar_blue.text(`100%`);
-            $("#solve_progressbar_container").after("<br><h3 id='sol_found'>All solutions have been found.</h3>");
-            if ($("#get_order")[0].checked){
-                $("#sol_found").after("<br><h3>Looking for a winning order...</h3>");
-                interval_order = setInterval(check_order_result, 15000);
-            }
-            else {
-                $('body').html(data['html']);
-                init_results();
-            }
-        }else{
-            let progress = Math.floor(100 * Number(data['counter'])/Number(data['combinations'])),
-                solve_progressbar_blue = $("#solve_progressbar_blue");
-            solve_progressbar_blue.width(`${progress}%`);
-            solve_progressbar_blue.text(`${progress}%`);
-        }
     });
+    interval_order = setInterval(check_order_result, request_wait_time);
 }
+
 function check_order_result(){
     $.ajax({
         type: "POST",

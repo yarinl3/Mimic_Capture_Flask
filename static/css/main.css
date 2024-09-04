@@ -44,7 +44,3 @@ h1, h2{
 #bootstrap-overrides .row{
     --bs-gutter-x: 0;
 }
-
-#bootstrap-overrides .col-sm-6, .col-sm-5{
-    width: 50%;
-}

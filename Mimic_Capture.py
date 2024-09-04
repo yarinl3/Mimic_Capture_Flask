@@ -42,7 +42,7 @@ def main():
         horizontal_fix = 0
         vertical_fix = 0
 
-    points = get_blocks_from_image()
+    points, _ = get_blocks_from_image()
 
     if mode == MODES['DEBUG']:
         debug_program(points, print_points=False)
@@ -445,7 +445,7 @@ def get_blocks_from_image(screenshot=None, web_mode=False, mimic_offset_x=0, mim
         # point by pixels, point by matrix index, is there a block at the point
         points.append([point_i, point_j, point_matrix_i, point_matrix_j, offset_i, offset_j, bool(dominant[2] > 140)])
     points.append([mimic_center_i, mimic_center_j, 3, 3, 0, 0, True])  # adds mimic treasure block
-    return points
+    return points, screenshot_path
 
 
 def convert_pic(screenshot):

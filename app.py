@@ -39,13 +39,13 @@ def fix_points():
         extension = f.filename.split('.')[-1]
         if extension in ['jpg', 'jpeg', 'png', 'webp']:
             filename = f'static/file uploading/{user_id}.{extension}'
-            users[user_id][FILENAME] = filename
             f.save(filename)
             im = cv2.imread(filename)
             image_size = im.shape[:-1]
             ratio = min(400, screen_width) / image_size[1]
             users[user_id][RATIO] = ratio
-            points = get_blocks_from_image(screenshot=filename, web_mode=True)
+            points, filename = get_blocks_from_image(screenshot=filename, web_mode=True)
+            users[user_id][FILENAME] = filename
             users[user_id][POINTS] = points
             for point in points:
                 fixed_points.append([int(point[1] * ratio), int(point[0] * ratio), point[4], point[5]])
@@ -223,7 +223,7 @@ def play():
 
 
 def get_points(user_id):
-    points = get_blocks_from_image(screenshot=users[user_id][FILENAME], web_mode=True,
+    points, _ = get_blocks_from_image(screenshot=users[user_id][FILENAME], web_mode=True,
                                    mimic_offset_x=users[user_id][MIMIC_OFFSET_X],
                                    mimic_offset_y=users[user_id][MIMIC_OFFSET_Y],
                                    vertical_offset=users[user_id][VERTICAL_OFFSET],

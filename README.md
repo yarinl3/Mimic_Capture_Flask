@@ -4,33 +4,33 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 1. Download zip from and extract it.<br>
 <img width="412" alt="image" src="https://github.com/user-attachments/assets/237bb8d8-3435-4f57-af10-ca4216c223b3">
 <br><br>
-2. Check if python exist with the command 'python' in terminal / cmd. (ctrl+z to exit)<br>
+2. Check if python exist with the command ```python``` in terminal / cmd. (ctrl+z to exit)<br>
 <img width="572" alt="image" src="https://github.com/user-attachments/assets/5002b6f9-51e7-40c6-833e-b4738b1a5c60">
 <br><br>
 3. If python does not exist [download python](https://www.python.org/downloads/).<br>
 <img width="663" alt="image" src="https://github.com/user-attachments/assets/7f180546-e93c-43f3-ba83-d3a4291abaa4">
 <br><br>
-4. Install virtualenv package with the command: python -m pip install virtualenv<br>
+4. Install virtualenv package with the command: ```python -m pip install virtualenv```<br>
 <img width="568" alt="image" src="https://github.com/user-attachments/assets/6b90d767-cff9-4190-93cb-76fa76057e8f">
 <br><br>
-5. Nevigate to the extract folder with 'cd' command.<br>
+5. Nevigate to the extract folder with ```cd```<br>
 <img width="343" alt="image" src="https://github.com/user-attachments/assets/4aba4cf9-7166-456b-b156-f59fd698ab9c">
 <br><br>
-6. Create a new environment with the command: python -m venv myenv<br>
+6. Create a new environment with the command: ```python -m venv myenv```<br>
 <img width="366" alt="image" src="https://github.com/user-attachments/assets/f2ad7e21-26f6-491d-8ae1-2189d7420945">
 <br><br>
 7. Activate the environment with the command:<br>
 Mac / Ubuntu:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;source myenv/bin/activate<br>
+&nbsp;&nbsp;&nbsp;&nbsp;```source myenv/bin/activate```<br>
 Windows:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;myenv\Scripts\activate<br>
+&nbsp;&nbsp;&nbsp;&nbsp;```myenv\Scripts\activate```<br>
 <img width="378" alt="image" src="https://github.com/user-attachments/assets/dfa54877-b436-4302-8b4b-f5c5f5adc569">
 <br><br>
-8. Install Mimic dependencies with the command: python -m pip install -r requirements.txt<br>
+8. Install Mimic dependencies with the command: ```python -m pip install -r requirements.txt```<br>
 <img width="637" alt="image" src="https://github.com/user-attachments/assets/87876faa-8c09-453f-8cef-7a3ff40bbfaa">
 <br><br>
 Web mode:<br>
-9. Run the server with the command: flask run --host=0.0.0.0 --port=1234<br>
+9. Run the server with the command: ```flask run --host=0.0.0.0 --port=1234```<br>
 <img width="815" alt="image" src="https://github.com/user-attachments/assets/610292e8-afc5-4999-8beb-7544fda6d690">
 <br><br>
 

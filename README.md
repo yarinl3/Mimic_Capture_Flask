@@ -1,7 +1,7 @@
 This project can run in [web mode with flask](#web-mode) with nice user interface and also can run through [terminal / IDE with low user interface](#ide--terminal).
 
 # Installation instructions:
-1. Download zip from and extract it. ([for multi-users download from the suitable branch](https://github.com/yarinl3/Mimic_Capture_Flask/tree/test-multiusers))<br>
+1. Download zip from and extract it.<br>
 <img width="412" alt="image" src="https://github.com/user-attachments/assets/237bb8d8-3435-4f57-af10-ca4216c223b3">
 <br><br>
 2. Check if python exist with the command 'python' in terminal / cmd. (ctrl+z to exit)<br>

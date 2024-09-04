@@ -369,7 +369,7 @@ def get_order(points, web_blocks='', web_mode=False):
         message = f"The order is: {' -> '.join([REV_COL[i[1]] + str(i[0] + 1) for i in order])}"
 
     if web_mode:
-        return message, duration, order
+        return message, order
     else:
         print(message)
         print(f'The time it took to find: {duration} seconds.')

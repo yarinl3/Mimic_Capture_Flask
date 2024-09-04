@@ -7,7 +7,7 @@ REMOVE_TIME = 60*30 # 30 min
 users = dict()
 POINTS, BLOCKS_SETS, RATIO, FILENAME, FROG_INDEXES, MOVES_COUNTER  = 0, 1, 2, 3, 4, 5
 MIMIC_OFFSET_X, MIMIC_OFFSET_Y, VERTICAL_OFFSET, HORIZONTAL_OFFSET = 6, 7, 8, 9
-SOLVE_RESULT, ORDER_RESULT, CHECKBOX = 10, 11, 12
+SOLVE_RESULT, ORDER_RESULT, CHECKBOX, START_TIME = 10, 11, 12, 13
 
 app = Flask(__name__)
 
@@ -28,10 +28,11 @@ def fix_points():
         image_height, image_width = 0, 0
         frog_indexes = [3, 3]
         moves_counter = 0
+        start_time = 0
         filename = ''
         ratio = 1
         users[user_id] = [points, blocks_sets, ratio, filename, frog_indexes, moves_counter, mimic_offset_x,
-                          mimic_offset_y, vertical_offset, horizontal_offset, solve_result, order_result, checkbox]
+                          mimic_offset_y, vertical_offset, horizontal_offset, solve_result, order_result, checkbox, start_time]
 
         f = request.files['file']
         screen_width = int(request.form.get('screen-width')) - 20
@@ -70,6 +71,7 @@ def app_solve():
         user_id = int(request.form['user_id'])
         update_offsets(request, user_id)
         specific_benefit = request.form['specific_benefit']
+        users[user_id][START_TIME] = int(time.time())
         users[user_id][CHECKBOX] = True if request.form['get_order'] == 'true' else False
         users[user_id][POINTS] = get_points(user_id)
         if specific_benefit and specific_benefit.isdigit() and int(specific_benefit) > 0:
@@ -126,11 +128,12 @@ def app_get_order():
 
 def get_order_template(blocks_set, benefit, user_id, blocks_set_number, first_order):
     with app.app_context():
-        message, duration, order = get_order(users[user_id][POINTS], web_blocks=blocks_set, web_mode=True)
+        message, order = get_order(users[user_id][POINTS], web_blocks=blocks_set, web_mode=True)
         image_path = save_order_as_image(order, users[user_id][POINTS], users[user_id][FILENAME], blocks_set_number)
         found = False if message == 'No order found.' else True
         if first_order:
-            return render_template("order.html", message=message, duration=duration,
+            return render_template("order.html", message=message,
+                                   duration=int(time.time()) - users[user_id][START_TIME],
                                    image_path=image_path, benefit=benefit), found
         return image_path, found
 

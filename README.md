@@ -17,7 +17,7 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 <img width="343" alt="image" src="https://github.com/user-attachments/assets/4aba4cf9-7166-456b-b156-f59fd698ab9c">
 <br><br>
 6. Create a new environment with the command: python -m venv myenv<br>
-<img width="569" alt="image" src="https://github.com/user-attachments/assets/2d9c9e93-ae9d-458f-99ea-5056ee2d9607">
+<img width="366" alt="image" src="https://github.com/user-attachments/assets/f2ad7e21-26f6-491d-8ae1-2189d7420945">
 <br><br>
 7. Activate the environment with the command:<br>
 Mac / Ubuntu:<br>

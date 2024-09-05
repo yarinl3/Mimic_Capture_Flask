@@ -5,9 +5,9 @@ This project can run in [web mode with flask](#web-mode) with nice user interfac
 <img width="412" alt="image" src="https://github.com/user-attachments/assets/237bb8d8-3435-4f57-af10-ca4216c223b3">
 <br><br>
 2. Check if python exist with the command python in terminal / cmd. (ctrl+z to exit)<br>
-```
-python
-```
+``` 
+snippet 
+``` 
 <img width="572" alt="image" src="https://github.com/user-attachments/assets/5002b6f9-51e7-40c6-833e-b4738b1a5c60">
 <br><br>
 3. If python does not exist [download python](https://www.python.org/downloads/).<br>

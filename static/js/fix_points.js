@@ -5,7 +5,7 @@ let mimic_x_offset = 0,
     point_radius = 7,
     interval_solve,
     interval_order,
-    request_wait_time = 10 * 1000
+    request_wait_time = 3 * 1000
     COLORS = {1: 'blue', 2: 'red', 3: 'green', 4: 'white'};
 
 $(window).on("load",function(){

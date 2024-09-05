@@ -288,7 +288,7 @@ def solve(points, filename=None, web_mode=False, specific_benefit=None, user_id=
     for i in range(1, 11):  # add all combinations of true blocks that not in the borders and not the frog block
         set_blocks_to_remove += list(itertools.combinations(available_blocks, i))
     users_mimic[user_id] = [len(set_blocks_to_remove), 0]
-    print(f'set_blocks_to_remove = {len(set_blocks_to_remove)}')
+
     for blocks_to_remove in set_blocks_to_remove:
         board = Board()
         board.update_board(points, blocks_to_remove)

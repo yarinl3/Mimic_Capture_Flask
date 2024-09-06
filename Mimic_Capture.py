@@ -528,6 +528,20 @@ def find_order(points, blocks):
     if removed_blocks is False: # no order exist
         return
     orders = create_generator(blocks, board, removed_blocks, initial=True)
+    temp_frog = board.frog.copy()
+    next_i, next_j = get_next_move(board, board.frog[0], board.frog[1])
+    board.frog = [next_i, next_j]
+    if None not in [next_i, next_j] and [next_i, next_j] not in blocks:
+        next_i, next_j = get_next_move(board, next_i, next_j)
+        if [next_i, next_j] in blocks and board.matrix[next_i][next_j] == True:
+            board.matrix[next_i][next_j] = False
+            next2_i, next2_j = get_next_move(board, next_i, next_j)
+            board.matrix[next_i][next_j] = True
+            if [next2_i, next2_j] in blocks:
+                gen1 = create_generator(blocks, board, removed_blocks, block1=[next_i, next_j], block2=[next2_i, next2_j],  block_number=0)
+                gen2 = create_generator(blocks, board, removed_blocks, block1=[next_i, next_j], block2=[next2_i, next2_j], block_number=1)
+                orders = itertools.chain(gen1, gen2)
+    board.frog = temp_frog.copy()
     while True: 
         orders_list = []
         try:

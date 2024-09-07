@@ -3,9 +3,6 @@ let mimic_x_offset = 0,
     vertical_offset = 0,
     horizontal_offset = 0,
     point_radius = 7,
-    interval_solve,
-    interval_order,
-    request_wait_time = 3 * 1000
     COLORS = {1: 'blue', 2: 'red', 3: 'green', 4: 'white'};
 
 $(window).on("load",function(){
@@ -84,29 +81,50 @@ $(window).on("load",function(){
     let solve = $("#solve");
     solve.on('click', function () {
         solve[0].disabled = true;
-        solve_get_order[0].disabled = true;
-        solve_request(false);
-    });
-
-    let solve_get_order = $("#solve_get_order");
-    solve_get_order.on('click', function () {
-        solve[0].disabled = true;
-        solve_get_order[0].disabled = true;
-        solve_request(true);
+        $("#parameters_form").hide();
+        save_cookies();
+        $("#progress_container").show();
+        update_points_request();
     });
 });
 
-function solve_request(get_order){
-    save_cookies();
-    $("#progress_container").show();
+function paintOrder(order){
     $.ajax({
         type: "POST",
-        url: "/solve",
+        url: "/paint_order",
+        data: {'order': order, 'user_id': $("#user_id").val()},
+        dataType: "json",
+        encode: true,
+        complete: function(xhr, textStatus) {
+            if (xhr.status !== 200) {
+                $("#error_button").trigger("click");
+            }
+        }
+    }).done(function(data){
+        if (data['success'] === true) {
+            // reload image with order
+            console.log(123123);
+            let canvas = $("#canvas")[0],
+                ctx = canvas.getContext("2d"),
+                img = new Image();
+            img.onload = function(){
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, image_width, image_height);
+            };
+            img.src = filename + " order.png";
+        }
+        else
+            $("#error_button").trigger("click");
+    });
+}
+function update_points_request(){
+    $.ajax({
+        type: "POST",
+        url: "/update_points",
         data: {'mimic_offset_x': $("#mimic_offset_x").val(),
             'mimic_offset_y': $("#mimic_offset_y").val(),
             'vertical_offset': $("#vertical_offset").val(),
             'horizontal_offset': $("#horizontal_offset").val(),
-            'specific_benefit': $("#specific_benefit").val(),
             'user_id': $("#user_id").val()},
         dataType: "json",
         encode: true,
@@ -115,46 +133,21 @@ function solve_request(get_order){
                 $("#error_button").trigger("click");
             }
         }
+    }).done(function(data){
+        if (data['success'] === true) {
+            let index = 0;
+            for (let flag of data['true_false_list']){
+                if (flag === false)
+                    $(`#_${index} .hexagon`).trigger('click');
+                index += 1;
+            }
+            $("#calculate").trigger('click');
+        }
+        else
+            $("#error_button").trigger("click");
     });
-    interval_solve = setInterval(function(){check_solve_result(get_order)}, request_wait_time);
 }
 
-function check_solve_result(get_order){
-    $.ajax({
-        type: "POST",
-        url: "/check_solve_result",
-        data: {'user_id': $("#user_id").val()},
-        dataType: "json",
-        encode: true,
-        complete: function(xhr, textStatus) {
-            if (xhr.status !== 200) {
-                clearInterval(interval_solve);
-                $("#error_button").trigger("click");
-            }
-        }
-    }).done(function(data){
-        if (data['solve_status'] === true){
-            clearInterval(interval_solve);
-            if (get_order === false){
-                $('body').html(data['html']);
-                init_results();
-            }else{
-                let solve_progressbar_blue = $("#solve_progressbar_blue");
-                solve_progressbar_blue.width(`100%`);
-                solve_progressbar_blue.text(`100%`);
-                $("#progress_container").after(
-                                        "<br><h5 id='sol_found'>All solutions have been found.</h5><br>" +
-                                                "<h5>Looking for a winning order...</h5>");
-                get_first_order_request();
-            }
-        }else{
-            let progress = Math.floor(100 * Number(data['counter'])/Number(data['combinations'])),
-                solve_progressbar_blue = $("#solve_progressbar_blue");
-            solve_progressbar_blue.width(`${progress}%`);
-            solve_progressbar_blue.text(`${progress}%`);
-        }
-    });
-}
 function save_cookies(){
     Cookies.set('mimic_x_offset', mimic_x_offset);
     Cookies.set('mimic_y_offset', mimic_y_offset);
@@ -230,41 +223,4 @@ function reset_parameters(){
     horizontal_offset = 0;
     point_radius = 7;
     drawImage();
-}
-
-function get_first_order_request(){
-    $.ajax({
-        type: "POST",
-        url: "/get_first_order",
-        data: {'user_id': $("#user_id").val()},
-        dataType: "json",
-        encode: true,
-        complete: function(xhr, textStatus) {
-            if (xhr.status !== 200) {
-                $("#error_button").trigger("click");
-            }
-        }
-    });
-    interval_order = setInterval(check_order_result, request_wait_time);
-}
-
-function check_order_result(){
-    $.ajax({
-        type: "POST",
-        url: "/check_order_result",
-        data: {'user_id': $("#user_id").val()},
-        dataType: "json",
-        encode: true,
-        complete: function(xhr, textStatus) {
-            if (xhr.status !== 200) {
-                clearInterval(interval_order);
-                $("#error_button").trigger("click");
-            }
-        }
-    }).done(function(data){
-        if (data['order_status'] === true){
-            clearInterval(interval_order);
-            $('html').html(data['html']);
-        }
-    });
 }

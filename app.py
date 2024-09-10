@@ -2,7 +2,7 @@ from Mimic_Capture import get_blocks_from_image, solve, get_order, save_order_as
 from flask import Flask, render_template, request, redirect
 import os, time, cv2, shutil, threading
 
-REMOVE_TIME = 60*30 # 30 min
+REMOVE_TIME = 60*5 # 5 min
 
 users = dict()
 POINTS, BLOCKS_SETS, RATIO, FILENAME, FROG_INDEXES, MOVES_COUNTER  = 0, 1, 2, 3, 4, 5

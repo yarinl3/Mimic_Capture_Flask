@@ -361,21 +361,17 @@ def get_order(points, web_blocks='', web_mode=False):
         blocks = input('Enter Blocks: ').strip().split(' ')
     blocks_to_remove = validate_blocks_input(blocks)
     if blocks_to_remove is None:
-        return None, None, None
-    start = time.time()
+        return None, None
     order = find_order(points, blocks_to_remove)
-    duration = int(time.time() - start)
-
-    if order is None:
-        message = 'No order found.'
-    else:
-        message = f"The order is: {' -> '.join([REV_COL[i[1]] + str(i[0] + 1) for i in order])}"
-
     if web_mode:
-        return message, order
+        if order is None:
+            return False, order
+        return True, order
     else:
-        print(message)
-        print(f'The time it took to find: {duration} seconds.')
+        if order is None:
+            print('No order found.')
+        else:
+            print(f"The order is: {' -> '.join([REV_COL[i[1]] + str(i[0] + 1) for i in order])}")
 
 
 def get_borders(board):
@@ -489,9 +485,6 @@ def convert_indexes(block):
 
 def validate_blocks_input(blocks):
     blocks_to_remove = []
-    if len(blocks) != NUMBER_OF_BLOCKS_TO_REMOVE:
-        print('Wrong number of blocks')
-        return
     for block in blocks:
         i, j = convert_indexes(block)
         if i is None:

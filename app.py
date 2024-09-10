@@ -133,11 +133,11 @@ def app_get_order():
 
 def get_order_template(blocks_set, benefit, user_id, blocks_set_number, first_order):
     with app.app_context():
-        message, order = get_order(users[user_id][POINTS], web_blocks=blocks_set, web_mode=True)
+        found, order = get_order(users[user_id][POINTS], web_blocks=blocks_set, web_mode=True)
         image_path = save_order_as_image(order, users[user_id][POINTS], users[user_id][FILENAME], blocks_set_number)
-        found = False if message == 'No order found.' else True
+
         if first_order:
-            return render_template("order.html", message=message,
+            return render_template("order.html",
                                    duration=int(time.time()) - users[user_id][START_TIME],
                                    image_path=image_path, benefit=benefit), found
         return image_path, found
@@ -158,7 +158,7 @@ def check_order_result():
         elif users[user_id][ORDER_RESULT]:
             _, page_template = users[user_id][ORDER_RESULT][0]
             if not page_template:
-                page_template = render_template("order.html", message='No order found.', duration=0,
+                page_template = render_template("order.html", duration=0,
                                                 image_path=users[user_id][FILENAME], benefit=0)
             return {'order_status': True, 'html': page_template}
 

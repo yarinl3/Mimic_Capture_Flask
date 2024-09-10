@@ -553,7 +553,7 @@ function handleCalculationsCompleted() {
         chosen_bombing_targets = deriveChosenBombingOrderFromState(captureBoardState(), top_winning_states[alternative_index]);
         bombing_order_tuple = calculateBombingOrder(captureBoardState(), chosen_bombing_targets);
     }
-    paintOrder(bombing_order_tuple[0]);
+    paintOrder(bombing_order_tuple[0], top_winning_state_areas[0]);
 }
 
 document.querySelector('#calculate').addEventListener("click", function() {

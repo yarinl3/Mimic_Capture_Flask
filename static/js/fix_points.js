@@ -88,7 +88,7 @@ $(window).on("load",function(){
     });
 });
 
-function paintOrder(order){
+function paintOrder(order, benefit){
     $.ajax({
         type: "POST",
         url: "/paint_order",
@@ -111,6 +111,7 @@ function paintOrder(order){
                 ctx.drawImage(img, 0, 0, image_width, image_height);
             };
             img.src = filename + " order.png";
+            $("#canvas").after($('<h2>The Benefit is ' + benefit + '.</h2>'));
         }
         else
             $("#error_button").trigger("click");

@@ -536,46 +536,9 @@ function deriveChosenBombingOrderFromState(original_state, bombed_state) {
     return out
 }
 
-function paintBombingStrategy(chosen_bombing_targets) {
-
-    // Remove the 'to_bomb' class from all elements with that class
-    document.querySelectorAll('.hexagon.to_bomb').forEach(hexagon => hexagon.classList.remove('to_bomb'));
-
-    // Add the 'to_bomb' class to the specified elements
-    chosen_bombing_targets.forEach(target => {
-        const hexagon = document.querySelector(`#_${target} > .hexagon`);
-        if (hexagon) {
-            hexagon.classList.add('to_bomb');
-        }
-    });
-}
-
-
-
-function paintBombingOrder(bomb_targets_in_order) {
-
-    // Remove any existing bomb order classes
-    for (var i = 0; i < 10; i++) {
-        document.querySelectorAll('.hexagon').forEach(hexagon => hexagon.classList.remove('bomb' + (i + 1)));
-    }
-
-    // Apply new bomb order classes
-    bomb_targets_in_order.forEach((target, index) => {
-        const hexagon = document.querySelector(`#_${target} > .hexagon`);
-        if (hexagon) {
-            hexagon.classList.add('bomb' + (index + 1));
-        }
-    });
-}
-
-
-
 function handleCalculationsCompleted() {
     $("#solve_progressbar_blue").text("100%");
-
     let chosen_bombing_targets = deriveChosenBombingOrderFromState(captureBoardState(), top_winning_states[0]);
-    paintBombingStrategy(chosen_bombing_targets);
-
     document.querySelectorAll('#board .tile .hexagon').forEach(hexagon => hexagon.textContent = "");
 
     let bombing_order_tuple = calculateBombingOrder(captureBoardState(), chosen_bombing_targets);
@@ -590,7 +553,6 @@ function handleCalculationsCompleted() {
         chosen_bombing_targets = deriveChosenBombingOrderFromState(captureBoardState(), top_winning_states[alternative_index]);
         bombing_order_tuple = calculateBombingOrder(captureBoardState(), chosen_bombing_targets);
     }
-    paintBombingStrategy(chosen_bombing_targets);
     paintOrder(bombing_order_tuple[0]);
 }
 

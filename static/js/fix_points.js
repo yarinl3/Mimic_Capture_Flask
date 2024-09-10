@@ -103,7 +103,6 @@ function paintOrder(order){
     }).done(function(data){
         if (data['success'] === true) {
             // reload image with order
-            console.log(123123);
             let canvas = $("#canvas")[0],
                 ctx = canvas.getContext("2d"),
                 img = new Image();

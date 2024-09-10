@@ -34,7 +34,7 @@ def fix_points():
         success_flag = False
         f = request.files['file']
         screen_width = int(request.form.get('screen-width')) - 20
-        extension = f.filename.split('.')[-1]
+        extension = f.filename.split('.')[-1].lower()
         if extension in ['jpg', 'jpeg', 'png', 'webp']:
             filename = f'static/file uploading/{user_id}.{extension}'
             users[user_id][FILENAME] = filename

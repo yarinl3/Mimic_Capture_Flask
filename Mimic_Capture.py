@@ -337,19 +337,21 @@ def find_order(points, blocks_to_remove):
     # if next move is block to remove is it necessary to remove it and move the mimic to next move (repeat as much as possible)
     removed_blocks = remove_necessary_blocks(board, blocks_to_remove)
     # re-order blocks from bottom-right to top-left to optimize get_order finder
-    blocks_to_remove = sorted(sorted(blocks_to_remove, key=operator.itemgetter(1), reverse=True),
-                              key=operator.itemgetter(0), reverse=True)
+    blocks_to_remove = sorted(sorted(blocks_to_remove, key=operator.itemgetter(1), reverse=True), key=operator.itemgetter(0), reverse=True)
     print(f'Debug: find_order, blocks_to_remove: {blocks_to_remove}')
     print(f'Debug: find_order, removed_blocks: {removed_blocks}')
     if removed_blocks is False: # no order exist
         return
     orders = itertools.permutations(blocks_to_remove)
 
+    counter = 0
     for order in orders:
+        counter += 1
         result = run_game_with_order(order, board, removed_blocks)
         if result:
+            print(f'Debug: find_order, succeeded, calculated orders: {counter}')
             return result
-
+    print(f'Debug: find_order, failed, calculated orders: {counter}')
 
 def get_next_move(board, i, j):
     border_i, border_j = board.calculate_best_move(i, j)

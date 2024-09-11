@@ -9,7 +9,6 @@
             filename = "{{ filename }}";
     </script>
     <script src="/static/js/fix_points.js"></script>
-    <script src="/static/js/results.js"></script>
 {% endblock %}
 {% block body %}
     <pre id="bootstrap-overrides" style="margin-top: 20px; white-space: wrap;">
@@ -64,88 +63,67 @@
                 <div class="mb-4 mt-3 row me-0">
                     <div class="col-1"></div>
                     <div class="col-10" style="border-radius: 0.375rem; margin-left: 0; margin-right: 0;border: 1px solid #dee2e6;">
-                    <div class="mb-0 mt-3 row me-0">
-                        <div class="col-2"></div>
-                        <label for="mimic_offset_x" class="col-5 col-form-label">Offset X: </label>
-                        <label for="mimic_offset_y" class="col-4 col-form-label">Offset Y: </label>
-                    </div>
-                    <div class="mb-3 row me-0">
-                        <div class="col-2"></div>
-                        <div class="col-3">
-                            <input type="text" class="form-control" id="mimic_offset_x" name="mimic_offset_x">
+                        <div class="mb-0 mt-3 row me-0">
+                            <div class="col-2"></div>
+                            <label for="mimic_offset_x" class="col-5 col-form-label">Offset X: </label>
+                            <label for="mimic_offset_y" class="col-4 col-form-label">Offset Y: </label>
                         </div>
-                        <div class="col-2"></div>
-                        <div class="col-3">
-                            <input type="text" class="form-control" id="mimic_offset_y" name="mimic_offset_y">
+                        <div class="mb-3 row me-0">
+                            <div class="col-2"></div>
+                            <div class="col-3">
+                                <input type="text" class="form-control" id="mimic_offset_x" name="mimic_offset_x">
+                            </div>
+                            <div class="col-2"></div>
+                            <div class="col-3">
+                                <input type="text" class="form-control" id="mimic_offset_y" name="mimic_offset_y">
+                            </div>
+                        </div>
+                        <div class="mb-0 row me-0">
+                            <div class="col-2"></div>
+                            <label for="vertical_offset" class="col-5 col-form-label">Vertical offset: </label>
+                            <label for="horizontal_offset" class="col-4 col-form-label">Horizontal offset: </label>
+                        </div>
+                        <div class="mb-3 row me-0">
+                            <div class="col-2"></div>
+                            <div class="col-3">
+                                <input type="text" class="form-control" id="vertical_offset" name="vertical_offset">
+                            </div>
+                            <div class="col-2"></div>
+                            <div class="col-3">
+                                <input type="text" class="form-control" id="horizontal_offset" name="horizontal_offset">
+                            </div>
+                        </div>
+                        <div class="mb-0 row me-0">
+                            <div class="col-2"></div>
+                            <label for="point_radius" class="col-5 col-form-label">Point radius: </label>
+                            <label for="point_color" class="col-4 col-form-label">Point color: </label>
+                        </div>
+                        <div class="mb-5 row me-0">
+                            <div class="col-2"></div>
+                            <div class="col-3">
+                                <input type="text" class="form-control" id="point_radius">
+                            </div>
+                            <div class="col-2"></div>
+                            <div class="col-3">
+                                <select class="form-select" id="point_color" aria-label="Dots color">
+                                    <option value="1" selected>Blue</option>
+                                    <option value="2">Red</option>
+                                    <option value="3">Green</option>
+                                    <option value="4">White</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3 row me-0">
+                            <div class="col-2"></div>
+                            <input class="btn btn-secondary mb-3 col-3" type="button" onclick="fix_points()" value="Change">
+                            <div class="col-2"></div>
+                            <input class="btn btn-secondary mb-3 col-3" type="button" onclick="reset_parameters()" value="Reset">
                         </div>
                     </div>
-                    <div class="mb-0 row me-0">
-                        <div class="col-2"></div>
-                        <label for="vertical_offset" class="col-5 col-form-label">Vertical offset: </label>
-                        <label for="horizontal_offset" class="col-4 col-form-label">Horizontal offset: </label>
-                    </div>
-                    <div class="mb-3 row me-0">
-                        <div class="col-2"></div>
-                        <div class="col-3">
-                            <input type="text" class="form-control" id="vertical_offset" name="vertical_offset">
-                        </div>
-                        <div class="col-2"></div>
-                        <div class="col-3">
-                            <input type="text" class="form-control" id="horizontal_offset" name="horizontal_offset">
-                        </div>
-                    </div>
-                    <div class="mb-0 row me-0">
-                        <div class="col-2"></div>
-                        <label for="point_radius" class="col-5 col-form-label">Point radius: </label>
-                        <label for="point_color" class="col-4 col-form-label">Point color: </label>
-                    </div>
-                    <div class="mb-5 row me-0">
-                        <div class="col-2"></div>
-                        <div class="col-3">
-                            <input type="text" class="form-control" id="point_radius">
-                        </div>
-                        <div class="col-2"></div>
-                        <div class="col-3">
-                            <select class="form-select" id="point_color" aria-label="Dots color">
-                                <option value="1" selected>Blue</option>
-                                <option value="2">Red</option>
-                                <option value="3">Green</option>
-                                <option value="4">White</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-3 row me-0">
-                        <div class="col-2"></div>
-                        <input class="btn btn-secondary mb-3 col-3" type="button" onclick="fix_points()" value="Change">
-                        <div class="col-2"></div>
-                        <input class="btn btn-secondary mb-3 col-3" type="button" onclick="reset_parameters()" value="Reset">
-                    </div>
-                </div>
-                </div>
-
-                <div class="mb-0 row me-0">
-                    <div class="col-2"></div>
-                    <label for="specific_benefit" class="mt-3 col-3 col-form-label">Specific benefit: </label>
-                    <div class="col-2"></div>
-                    <button id="solve" class="btn btn-primary mt-3 col-3">Solve</button>
                 </div>
                 <div class="mb-2 row me-0">
-                    <div class="col-2"></div>
-                    <div class="col-3">
-                        <input type="text" class="form-control" id="specific_benefit">
-                    </div>
-                    <div class="col-2"></div>
-                    <button id="solve_get_order" class="btn btn-primary mt-3 col-3">Solve + Get order</button>
-                </div>
-                <div class="mb-3 row me-0">
-                    <div class="col-2"></div>
-                    <div class="col-10">
-                        <span><b>* Solve + Get order will increase the waiting time</b></span>
-                    </div>
-                </div>
-                <div class="row me-0">
-                    <div class="col-7"></div>
-                    <button type="submit" class="btn btn-success col-3" id="play" formaction="/play">Play</button>
+                    <div class="col-5"></div>
+                    <button id="solve" class="btn btn-primary mt-3 col-2">Solve</button>
                 </div>
             </form></pre>
             <div class="progress" role="progressbar" aria-label="solve-progressbar" id="progress_container" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">

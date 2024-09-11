@@ -4,8 +4,7 @@ let mimic_x_offset = 0,
     horizontal_offset = 0,
     point_radius = 7,
     interval_solve,
-    interval_order,
-    request_wait_time = 3 * 1000
+    request_wait_time = 2000
     COLORS = {1: 'blue', 2: 'red', 3: 'green', 4: 'white'};
 
 $(window).on("load",function(){
@@ -84,19 +83,11 @@ $(window).on("load",function(){
     let solve = $("#solve");
     solve.on('click', function () {
         solve[0].disabled = true;
-        solve_get_order[0].disabled = true;
-        solve_request(false);
-    });
-
-    let solve_get_order = $("#solve_get_order");
-    solve_get_order.on('click', function () {
-        solve[0].disabled = true;
-        solve_get_order[0].disabled = true;
-        solve_request(true);
+        solve_request();
     });
 });
 
-function solve_request(get_order){
+function solve_request(){
     save_cookies();
     $("#progress_container").show();
     $.ajax({
@@ -106,7 +97,6 @@ function solve_request(get_order){
             'mimic_offset_y': $("#mimic_offset_y").val(),
             'vertical_offset': $("#vertical_offset").val(),
             'horizontal_offset': $("#horizontal_offset").val(),
-            'specific_benefit': $("#specific_benefit").val(),
             'user_id': $("#user_id").val()},
         dataType: "json",
         encode: true,
@@ -116,13 +106,13 @@ function solve_request(get_order){
             }
         }
     });
-    interval_solve = setInterval(function(){check_solve_result(get_order)}, request_wait_time);
+    interval_solve = setInterval(check_solve_result, request_wait_time);
 }
 
-function check_solve_result(get_order){
+function check_solve_result(){
     $.ajax({
         type: "POST",
-        url: "/check_solve_result",
+        url: "/check_result",
         data: {'user_id': $("#user_id").val()},
         dataType: "json",
         encode: true,
@@ -133,20 +123,12 @@ function check_solve_result(get_order){
             }
         }
     }).done(function(data){
-        if (data['solve_status'] === true){
+        if (data['status'] === true){
             clearInterval(interval_solve);
-            if (get_order === false){
-                $('body').html(data['html']);
-                init_results();
-            }else{
-                let solve_progressbar_blue = $("#solve_progressbar_blue");
-                solve_progressbar_blue.width(`100%`);
-                solve_progressbar_blue.text(`100%`);
-                $("#progress_container").after(
-                                        "<br><h5 id='sol_found'>All solutions have been found.</h5><br>" +
-                                                "<h5>Looking for a winning order...</h5>");
-                get_first_order_request();
-            }
+            let solve_progressbar_blue = $("#solve_progressbar_blue");
+            solve_progressbar_blue.width(`100%`);
+            solve_progressbar_blue.text(`100%`);
+            $('html').html(data['html']);
         }else{
             let progress = Math.floor(100 * Number(data['counter'])/Number(data['combinations'])),
                 solve_progressbar_blue = $("#solve_progressbar_blue");
@@ -230,41 +212,4 @@ function reset_parameters(){
     horizontal_offset = 0;
     point_radius = 7;
     drawImage();
-}
-
-function get_first_order_request(){
-    $.ajax({
-        type: "POST",
-        url: "/get_first_order",
-        data: {'user_id': $("#user_id").val()},
-        dataType: "json",
-        encode: true,
-        complete: function(xhr, textStatus) {
-            if (xhr.status !== 200) {
-                $("#error_button").trigger("click");
-            }
-        }
-    });
-    interval_order = setInterval(check_order_result, request_wait_time);
-}
-
-function check_order_result(){
-    $.ajax({
-        type: "POST",
-        url: "/check_order_result",
-        data: {'user_id': $("#user_id").val()},
-        dataType: "json",
-        encode: true,
-        complete: function(xhr, textStatus) {
-            if (xhr.status !== 200) {
-                clearInterval(interval_order);
-                $("#error_button").trigger("click");
-            }
-        }
-    }).done(function(data){
-        if (data['order_status'] === true){
-            clearInterval(interval_order);
-            $('html').html(data['html']);
-        }
-    });
 }

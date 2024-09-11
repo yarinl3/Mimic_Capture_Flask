@@ -1,4 +1,4 @@
-import sys, cv2, os, time, itertools, operator
+import cv2, os, itertools, operator, time
 from PIL import Image
 import numpy as np
 
@@ -17,43 +17,6 @@ SAMPLE_RADIUS = 10
 ROWS_NUMBER, COLS_NUMBER = 7, 7
 users_mimic = dict()
 screenshot_path = ''
-
-
-def main():
-    global screenshot_path, width_fix, height_fix, vertical_fix, horizontal_fix
-    mode = MODES['PLAY']
-    screenshot_path = 'test.png' # here you put the screenshot path
-    screenshot_path = f'{sys.argv[1]}' if len(sys.argv) > 1 else screenshot_path
-    if os.path.isfile(screenshot_path) is False:
-        print(f'The file {screenshot_path} does not exist!')
-        return
-    try:
-        mode = MODES[sys.argv[2].upper()] if len(sys.argv) > 2 else mode
-    except KeyError:
-        print('Invalid mode.')
-        return
-
-    if mode == MODES['DEBUG']:
-        height_fix = 0
-        width_fix = 0
-        horizontal_fix = 0
-        vertical_fix = 0
-
-    points, _ = get_blocks_from_image()
-
-    if mode == MODES['DEBUG']:
-        debug_program(points, print_points=False)
-
-    if mode == MODES['PLAY']:
-        play_game(points)
-
-    if mode == MODES['SOLVE']:
-        solve(points)
-        os.system("say beep")
-
-    if mode == MODES['GET_ORDER']:
-        get_order(points)
-        os.system("say beep")
 
 
 class Board:
@@ -192,82 +155,10 @@ class Board:
                     return border[0], border[1]
         return None, None
 
-    def show_board(self):
-        for i, row in enumerate(self.matrix):
-            for t in range(2):
-                for j in range(len(row)):
-                    if j % 2 == t and row[j]:
-                        if i == self.frog[0] and j == self.frog[1]:
-                            print('🐸', end='\t')
-                        else:
-                            print('⬣', end='\t')
-                    else:
-                        print(' ', end='\t')
-                print()
 
-
-def debug_program(points, print_points=False):
-    if print_points:
-        for point in points:
-            print(point)
-    save_solution_as_image('debug', points, [], debug=True)
-
-
-def play_game(points):
-    board = Board()
-    board.update_board(points)
-    player_moves = ''
-    player_counter = 0
-    while True:
-        clear_and_show_board(board)
-        time.sleep(1)
-        player_move = input('Select a block to remove: ')
-        remove_i, remove_j = convert_indexes(player_move)
-        clear_and_show_board(board)
-        if (remove_i is None or remove_j is None or board.matrix[remove_i][remove_j] is False
-                or [remove_i, remove_j] == board.frog):
-            print('Invalid block indexes.\nPlease try again.\n')
-            time.sleep(1)
-            continue
-        player_moves += player_move.upper() + ' -> '
-        board.matrix[remove_i][remove_j] = False
-        player_counter += 1
-        clear_and_show_board(board)
-        time.sleep(1)
-        is_win = board.move()
-        if is_win in [True, False] or player_counter == NUMBER_OF_BLOCKS_TO_REMOVE:
-            clear_and_show_board(board)
-            if is_win is True:
-                print('You win!')
-            else:
-                print('You lose!')
-            print(f'Your moves: {player_moves[:-4]}')
-            exit()
-
-
-def play_game_web(points, player_move, frog_indexes):
-    board = Board()
-    board.update_board(points)
-    board.frog = frog_indexes
-    if player_move != board.frog:
-        for point in points:
-            _, _, i, j, _, _, is_block = point
-            if is_block is True and [i, j] == player_move:
-                point[-1] = False
-                break
-        i, j = player_move
-        board.matrix[i][j] = False
-        is_win = board.move()
-        if is_win in [True, False]:
-            return is_win, points, board.frog
-    return None, points, board.frog
-
-
-def solve(points, filename=None, web_mode=False, specific_benefit=None, user_id=None):
+def solve(points, user_id):
     global users_mimic
-    maximum_benefit = 0
-    web_messages = []
-    benefit_list = []
+    params_list = []
     set_blocks_to_remove = []
     available_blocks = []
     board = Board()
@@ -275,6 +166,7 @@ def solve(points, filename=None, web_mode=False, specific_benefit=None, user_id=
     board.remove_pointless_blocks()
     board.remove_unreachable_blocks()
     borders = get_borders(board)
+    users_mimic[user_id] = [199140, 0] # maximum combinations and counter for progress bar
     for i in range(ROWS_NUMBER):
         for j in range(COLS_NUMBER):
             if board.matrix[i][j] is True and [i, j] != board.frog and [i, j] not in borders:
@@ -282,75 +174,41 @@ def solve(points, filename=None, web_mode=False, specific_benefit=None, user_id=
 
     set_blocks_to_remove.append([])  # add the option of remove only borders
     # combination of one block from available blocks
-    for i in range(1, 11):  # add all combinations of true blocks that not in the borders and not the frog block
-        set_blocks_to_remove += list(itertools.combinations(available_blocks, i))
-    users_mimic[user_id] = [len(set_blocks_to_remove), 0]
-    for blocks_to_remove in set_blocks_to_remove:
-        board = Board()
-        board.update_board(points, blocks_to_remove)
-        users_mimic[user_id][1] += 1 # count iterations for progress bar
-        board.remove_unreachable_blocks()
-        borders = get_borders(board)
-        amount_of_blocks = len(borders) + len(blocks_to_remove)
+    start_time = time.time()
+    counter = 0 # debug
+    for index in range(1, 6):  # calculate all combinations of true blocks that not in the borders and not the frog block
+        for blocks_to_remove in itertools.combinations(available_blocks, index):
+            counter += 1 # debug
+            board = Board()
+            board.update_board(points, blocks_to_remove)
+            users_mimic[user_id][1] += 1 # count iterations for progress bar
+            board.remove_unreachable_blocks()
+            borders = get_borders(board)
+            amount_of_blocks = len(borders) + len(blocks_to_remove)
 
-        if amount_of_blocks <= NUMBER_OF_BLOCKS_TO_REMOVE:
-            true_blocks = len(blocks_to_remove)
-            for i in range(ROWS_NUMBER):
-                for j in range(COLS_NUMBER):
-                    if board.matrix[i][j] is True:
-                        true_blocks += 1
-            benefit = true_blocks - amount_of_blocks
-
-            if specific_benefit != None:
-                if benefit == specific_benefit:
-                    maximum_benefit = benefit
-                    blocks_to_remove_with_maximum_benefit = list(blocks_to_remove) + borders
-                    benefit_list.append([benefit, blocks_to_remove_with_maximum_benefit])
-
-            elif benefit >= maximum_benefit:
-                maximum_benefit = benefit
-                blocks_to_remove_with_maximum_benefit = list(blocks_to_remove) + borders
-                benefit_list.append([benefit, blocks_to_remove_with_maximum_benefit])
-    counter = 1
-    if len(benefit_list) != 0:
-        if web_mode:
-            web_messages.append(maximum_benefit)
-        print(f'The maximum benefit is {maximum_benefit}.')
-        for item in benefit_list:
-            if item[0] == maximum_benefit:
-                # re-order blocks from bottom to top to optimize get_order finder
-                item[1] = sorted(sorted(item[1], key=operator.itemgetter(1)), key=operator.itemgetter(0), reverse=True)
-                blocks_set = ' '.join([REV_COL[i[1]] + str(i[0] + 1) for i in item[1]])
-                if web_mode:
-                    web_messages.append(blocks_set)
-                else:
-                    print(f'Blocks to remove: {blocks_set}')
-                if filename:
-                    save_solution_as_image(counter, points, item[1], screenshot=filename)
-                else:
-                    save_solution_as_image(counter, points, item[1])
-                counter += 1
-    return web_messages
-
-
-def get_order(points, web_blocks='', web_mode=False):
-    if web_mode:
-        blocks = web_blocks.split(' ')
-    else:
-        blocks = input('Enter Blocks: ').strip().split(' ')
-    blocks_to_remove = validate_blocks_input(blocks)
-    if blocks_to_remove is None:
-        return None, None
-    order = find_order(points, blocks_to_remove)
-    if web_mode:
-        if order is None:
-            return False, order
-        return True, order
-    else:
-        if order is None:
-            print('No order found.')
-        else:
-            print(f"The order is: {' -> '.join([REV_COL[i[1]] + str(i[0] + 1) for i in order])}")
+            if amount_of_blocks <= NUMBER_OF_BLOCKS_TO_REMOVE:
+                true_blocks = len(blocks_to_remove)
+                for i in range(ROWS_NUMBER):
+                    for j in range(COLS_NUMBER):
+                        if board.matrix[i][j] is True:
+                            true_blocks += 1
+                benefit = true_blocks - amount_of_blocks
+                blocks_to_remove = list(blocks_to_remove) + borders
+                params_list.append([blocks_to_remove, benefit])
+        if index >= 5:
+            params_list = sorted(params_list, key=operator.itemgetter(1), reverse=True) # sort by benefit
+            print(f'Debug: time taken to get solve results = {time.time() - start_time}')
+            print(f'Debug: best result = {params_list[0]}')
+            print(f'Debug: counter = {counter}')
+            for params in params_list:
+                blocks_to_remove, benefit = params
+                print(f'Debug: blocks to remove before order = {blocks_to_remove}')
+                print(f'Debug: benefit = {benefit}\n')
+                order = find_order(points, blocks_to_remove)
+                if order:
+                    return order, benefit
+            params_list = []
+    return None, None
 
 
 def get_borders(board):
@@ -450,11 +308,6 @@ def save_solution_as_image(solution_number, points, blocks_to_remove, screenshot
     cv2.imwrite(f'{solutions_dir_path}/solution-{solution_number}.png', img_rgb)
 
 
-def clear_and_show_board(board):
-    os.system('cls' if os.name == 'nt' else 'clear')
-    board.show_board()
-
-
 def convert_indexes(block):
     block = block.strip()
     if len(block) != 2 or block[0].upper() not in COLS or block[1].isdigit() is False or not (0 < int(block[1]) < 8):
@@ -462,23 +315,11 @@ def convert_indexes(block):
     return int(block[1]) - 1, COLS[block[0].upper()]
 
 
-def validate_blocks_input(blocks):
-    blocks_to_remove = []
-    for block in blocks:
-        i, j = convert_indexes(block)
-        if i is None:
-            print(f'Wrong block index. {block}')
-            return
-        blocks_to_remove.append([i, j])
-    return blocks_to_remove
-
-
 def run_game_with_order(order, board, removed_blocks):
     copy_order = list(order)
     board = board.copy()
     if board.frog in copy_order:  # Frog block removal is prohibited
         return
-
     while copy_order:
         i, j = copy_order.pop(0)
         board.matrix[i][j] = False
@@ -489,13 +330,20 @@ def run_game_with_order(order, board, removed_blocks):
             return removed_blocks + list(order)
 
 
-def find_order(points, blocks):
+def find_order(points, blocks_to_remove):
     board = Board()
     board.update_board(points)
-    removed_blocks = remove_necessary_blocks(board, blocks)
+
+    # if next move is block to remove is it necessary to remove it and move the mimic to next move (repeat as much as possible)
+    removed_blocks = remove_necessary_blocks(board, blocks_to_remove)
+    # re-order blocks from bottom-right to top-left to optimize get_order finder
+    blocks_to_remove = sorted(sorted(blocks_to_remove, key=operator.itemgetter(1), reverse=True),
+                              key=operator.itemgetter(0), reverse=True)
+    print(f'Debug: find_order, blocks_to_remove: {blocks_to_remove}')
+    print(f'Debug: find_order, removed_blocks: {removed_blocks}')
     if removed_blocks is False: # no order exist
         return
-    orders = itertools.permutations(blocks)
+    orders = itertools.permutations(blocks_to_remove)
 
     for order in orders:
         result = run_game_with_order(order, board, removed_blocks)
@@ -527,18 +375,16 @@ def remove_necessary_blocks(board, blocks_to_remove):
         else:
             return removed_blocks
 
-def save_order_as_image(order, points, filename, blocks_set_number):
+def save_order_as_image(order, points, filename):
     img_rgb = cv2.imread(filename)
     if order is None:
         order = []
     for block_number, block in enumerate(order):
         pixel_i, pixel_j = 0, 0
         for point in points:
-
             if block == list(point[2:4]):
                 pixel_i, pixel_j = point[:2]
                 break
-
         points_horizontal_distance = int((points[1][1] - points[0][1])/8)
         points_horizontal_distance_10 = points_horizontal_distance * 2
         points_vertical_distance = int((points[7][0] - points[6][0]) / 2)
@@ -550,10 +396,6 @@ def save_order_as_image(order, points, filename, blocks_set_number):
         cv2.putText(img_rgb, str(block_number + 1), (int(pixel_j-points_horizontal_distance),
                                                      int(pixel_i+points_vertical_distance)), cv2.FONT_HERSHEY_SIMPLEX,
                     font_scale,(255, 0, 0), thickness)
-    image_name = f'{filename} order {blocks_set_number}.png'
+    image_name = f'{filename} order.png'
     cv2.imwrite(image_name, img_rgb)
     return image_name
-
-
-if __name__ == '__main__':
-    main()

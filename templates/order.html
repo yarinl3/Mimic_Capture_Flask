@@ -10,8 +10,6 @@
         <div style="padding:0.75em;">
             <h2>The Benefit is {{ benefit }}.</h2>
             <label>{% if benefit == 0 %}No order found.{% else %}{{ message }}{% endif %}</label>
-            <br><br>
-            <label>The time it took to find: {{ duration }} seconds.</label>
         </div>
     </div>
 {% endblock %}

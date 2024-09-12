@@ -1,3 +1,14 @@
+This branch is under construction.
+Please download the tool from ["combined tool" branch.](https://github.com/yarinl3/Mimic_Capture_Flask/tree/combined-tool)
+
+
+
+
+
+
+
+
+
 This project can run in [web mode with flask](#web-mode) with nice user interface and also can run through [terminal / IDE with low user interface](#ide--terminal).
 
 # Installation instructions:

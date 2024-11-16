@@ -36,7 +36,7 @@ def fix_points():
         f = request.files['file']
         screen_width = int(request.form.get('screen-width')) - 20
         extension = f.filename.split('.')[-1]
-        if extension in ['jpg', 'jpeg', 'png', 'webp']:
+        if extension.lower() in ['jpg', 'jpeg', 'png', 'webp']:
             filename = f'static/file uploading/{user_id}.{extension}'
             f.save(filename)
             im = cv2.imread(filename)
